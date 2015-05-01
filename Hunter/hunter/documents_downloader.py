@@ -30,7 +30,7 @@ def find_links(docs_num):
             if not link:
                 break
             if link not in links_set:
-                with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/links', 'a') as f:
+                with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/links.txt', 'a') as f:
                     f.write(link + '\n')
                 links_set.add(link)
                 if len(links_set) == docs_num:
@@ -87,12 +87,12 @@ def save_doc(doc, i):
         f.write('\n'.join(doc))
 
 def read_all_english_words():
-    with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/english_full_list') as f:
+    with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/english_full_list.txt') as f:
         english_words = f.read().splitlines()
     return english_words
 
 def read_all_links():
-    with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/links') as f:
+    with open('/Users/uriklarman/Development/PycharmProjects/keywords_learning/links.txt') as f:
         links = f.read().splitlines()
     return links
 
