@@ -20,58 +20,58 @@ num_wet_files = 5
 
 
 def create_lda_model():
-    print_time('about to create all docs from chunks')
-    start_time = datetime.datetime.now()
-    print('start time: ', start_time)
+    # print_time('about to create all docs from chunks')
+    # start_time = datetime.datetime.now()
+    # print('start time: ', start_time)
     # create_all_docs()
-    end_time = datetime.datetime.now()
-    print('end time: ', end_time, '    total time is: ', end_time - start_time)
-
-    print_time('about to load all docs')
-    all_docs = load_all_docs()
-    print_time('about to load english words')
-    with open('english_full_list.txt') as f:
-        english_words = f.read().splitlines()
-
-    good_english_words = set(english_words[75:21000])
-    del english_words
-    print_time('about to remove all stop-words and unknown words')
-    texts = []
-    for i, doc in enumerate(all_docs):
-        filtered_doc = [word for word in doc if word in good_english_words]
-        texts.append(filtered_doc)
-        if i % 5000 == 0:
-            print('Finished doc: ', i)
-
-    print_time('about to release memory of all_docs and english_words')
-    del all_docs
-    del good_english_words
-
-    print_time('about to save texts')
-    with open('./resources/pickled/texts.pkl', mode='wb') as f:
-        pickle.dump(texts, f)
-
-    print_time('about to load texts')
-    with open('./resources/pickled/texts.pkl', mode='rb') as f:
-        texts = pickle.load(f)
-
-    print_time('about to create dictionary')
-    dictionary = corpora.Dictionary(texts)
-    keys = dictionary.keys()
-    print('dict size before filter: ', len(keys))
-    dictionary.filter_extremes(keep_n=150000)
-    dictionary.filter_extremes(no_below=750, no_above=0.1)
-    keys = dictionary.keys()
-    print('dict size after filter: ', len(keys))
-    dictionary.save('./resources/LDA_output/lda.dict')
-    dictionary.save_as_text('./resources/LDA_output/lda_dict.txt')
-
-    print_time('about to create corpus')
-    corpus = [dictionary.doc2bow(text) for text in texts]
-
-    print_time('about to save corpus as mm file')
-    corpora.MmCorpus.serialize('./resources/LDA_output/corpus.mm', corpus)
-
+    # end_time = datetime.datetime.now()
+    # print('end time: ', end_time, '    total time is: ', end_time - start_time)
+    #
+    # print_time('about to load all docs')
+    # all_docs = load_all_docs()
+    # print_time('about to load english words')
+    # with open('./resources/LDA_input/english_full_list.txt') as f:
+    #     english_words = f.read().splitlines()
+    #
+    # good_english_words = set(english_words[75:21000])
+    # del english_words
+    # print_time('about to remove all stop-words and unknown words')
+    # texts = []
+    # for i, doc in enumerate(all_docs):
+    #     filtered_doc = [word for word in doc if word in good_english_words]
+    #     texts.append(filtered_doc)
+    #     if i % 5000 == 0:
+    #         print('Finished doc: ', i)
+    #
+    # print_time('about to release memory of all_docs and english_words')
+    # del all_docs
+    # del good_english_words
+    #
+    # print_time('about to save texts')
+    # with open('./resources/pickled/texts.pkl', mode='wb') as f:
+    #     pickle.dump(texts, f)
+    #
+    # print_time('about to load texts')
+    # with open('./resources/pickled/texts.pkl', mode='rb') as f:
+    #     texts = pickle.load(f)
+    #
+    # print_time('about to create dictionary')
+    # dictionary = corpora.Dictionary(texts)
+    # keys = dictionary.keys()
+    # print('dict size before filter: ', len(keys))
+    # dictionary.filter_extremes(keep_n=150000)
+    # dictionary.filter_extremes(no_below=750, no_above=0.1)
+    # keys = dictionary.keys()
+    # print('dict size after filter: ', len(keys))
+    # dictionary.save('./resources/LDA_output/lda.dict')
+    # dictionary.save_as_text('./resources/LDA_output/lda_dict.txt')
+    #
+    # print_time('about to create corpus')
+    # corpus = [dictionary.doc2bow(text) for text in texts]
+    #
+    # print_time('about to save corpus as mm file')
+    # corpora.MmCorpus.serialize('./resources/LDA_output/corpus.mm', corpus)
+    #
     print_time('about to load dictionary file')
     dictionary = corpora.Dictionary.load('./resources/LDA_output/lda.dict')
 
@@ -140,7 +140,7 @@ def create_doc(doc_lines):
 
 
 def load_all_docs():
-    with open('pickled/all_docs.pkl', mode='rb') as f:
+    with open('./resources/pickled/all_docs.pkl', mode='rb') as f:
         all_docs = pickle.load(f)
         return all_docs
 
@@ -207,7 +207,7 @@ def find_words_from_lda_model():
 
 
 if __name__ == '__main__':
-    create_all_docs()
+    create_lda_model()
     # dict_word_sets = find_words_from_lda_model()
     # with open('pickled/dict_word_sets.pkl', mode='wb') as f:
     #     pickle.dump(dict_word_sets, f)
