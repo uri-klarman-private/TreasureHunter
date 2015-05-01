@@ -56,6 +56,9 @@ docs/_build/
 # PyBuilder
 target/
 
-#common-crawl wet files
+# common-crawl wet files
 *.wet
+# pickeled files
 *.pkl
+# LDA model heavy file
+*.mm
