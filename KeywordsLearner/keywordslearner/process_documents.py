@@ -15,6 +15,7 @@ import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 num_topics = 2000
+num_wet_files = 5
 
 def create_lda_model():
     print_time('about to create all docs from chunks')
@@ -99,14 +100,17 @@ def print_time(msg):
 
 def create_all_docs():
     all_docs = []
-    chunks = os.listdir('docs_chunks')
+    wet_files_path = './resources/wet_files'
+    print(os.path.dirname(os.path.realpath(__file__)))
+    chunks = [filename for filename in os.listdir(wet_files_path) if '.wet' in filename][:num_wet_files]
+    print(chunks)
     for chunk in chunks:
-        chunk_path = 'docs_chunks/' + chunk
+        chunk_path = wet_files_path + '/' + chunk
         print('Starting chunk: ', chunk_path)
         all_docs += docs_from_chunk(chunk_path)
 
     print('Finished going over all chunks. saving...')
-    with open('pickled/all_docs.pkl', mode='wb') as f:
+    with open('./resources/pickled/all_docs.pkl', mode='wb') as f:
         pickle.dump(all_docs, f)
 
 
@@ -203,6 +207,7 @@ def find_words_from_lda_model():
 
 
 if __name__ == '__main__':
+    create_all_docs()
     # dict_word_sets = find_words_from_lda_model()
     # with open('pickled/dict_word_sets.pkl', mode='wb') as f:
     #     pickle.dump(dict_word_sets, f)
