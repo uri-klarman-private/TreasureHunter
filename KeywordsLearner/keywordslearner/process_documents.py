@@ -14,7 +14,7 @@ regex = re.compile("[^a-zA-Z']")
 import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-num_topics = 1000
+num_topics = 2000
 
 def create_lda_model():
     print_time('about to create all docs from chunks')
