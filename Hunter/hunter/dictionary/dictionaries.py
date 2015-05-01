@@ -129,7 +129,7 @@ def translate_5_keywords_to_indexes(five_words, num_of_words, keywords_dict, key
     return list(reversed(reversed_deltas))
 
 def add_link_to_links_file(link_str, keywords_dict, X, L):
-    with open('resources/links.txt', 'a') as f:
+    with open('resources/links.txt.txt', 'a') as f:
         f.write("\n" +link_str)
     keywords_dict, english_dict, links_dict = create_and_save_dicts(X, L, links_only=True, keywords_dict=keywords_dict)
     return links_dict
@@ -162,7 +162,7 @@ def load_dictionaries(X, L):
 def create_and_save_dicts(X, L, dict_first_word_i=0, links_only=False, keywords_dict=None):
     keywords_dict, english_dict, links_dict = create_dictionaries(
         '/Users/uriklarman/Development/PycharmProjects/keywords_learning/pickled/topic_dict_words.pkl',
-        'resources/written.num', 'resources/links.txt', X, L, dict_first_word_i, links_only, keywords_dict)
+        'resources/written.num', 'resources/links.txt.txt', X, L, dict_first_word_i, links_only, keywords_dict)
     print 'len of english keywords / 2 : ', len(english_dict) / 2
     print 'creating dictionaries Done'
     save_dictionaries(keywords_dict, english_dict, links_dict, X, L, links_only)

@@ -50,7 +50,7 @@ def plot():
 
     plt.axis([0, 130, 0., 1.1])
     plt.plot(cdf, '-r')
-    plt.xlabel('# of links passed to find feasible essence')
+    plt.xlabel('# of links.txt passed to find feasible essence')
     plt.ylabel('CDF')
     plt.grid(True)
     plt.show()
@@ -61,11 +61,11 @@ def plot():
     # ax = fig.add_subplot(1,1,1)
     # n, bins, patches=ax.hist(x, 30)
     # ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: ('%.2f')%(y/total_number_of_attempts)))
-    # ax.set_ylabel('% of links')
+    # ax.set_ylabel('% of links.txt')
     # # ax.set_autoscaley_on(False)
     # plt.ylim(ymin=0,ymax=12.3)      # the 101 / 7 stats /Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/a_stats/stats_7_101_2015-01-01 12:35:25.180845.pkl
     # # plt.ylim(ymin=0,ymax=13.8)    # the 752 / 7 stats /Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/COPY_752_statsdata.txt_1000_0.txt.pkl
-    # plt.xlabel('# of links passed to find feasible essence')
+    # plt.xlabel('# of links.txt passed to find feasible essence')
     # plt.show()
 
     # plt.axis([0, 130, 0., 1.1])
@@ -78,8 +78,8 @@ def plot():
     ax.hist(num_links_required, weights=np.zeros_like(num_links_required) + 100. / total_number_of_attempts, bins= [x for x in range(0,132,2)])
     # n, bins, patches = ax.hist(num_links_required, bins=100, normed=1, cumulative=0)
     plt.axis([0, 130, 0., 100])
-    plt.xlabel('# of links passed to find feasible essence')
-    plt.ylabel('% of links')
+    plt.xlabel('# of links.txt passed to find feasible essence')
+    plt.ylabel('% of links.txt')
 
     plt.show()
 
@@ -101,7 +101,7 @@ def plot():
     #
     # plt.axis([0, 100, 0., 1.1])
     # plt.plot(cdf, '-r')
-    # plt.xlabel('# of links passed to find feasible essence')
+    # plt.xlabel('# of links.txt passed to find feasible essence')
     # plt.ylabel('CDF')
     # plt.grid(True)
     # plt.show()
@@ -109,8 +109,8 @@ def plot():
     # num_links_used = [x[2] for x in stats.words_collected]
     # plt.axis([0.5, 100, 0, 30])
     # plt.hist(num_links_used,bins=50)
-    # plt.xlabel('# of links passed to find feasible essence')
-    # plt.ylabel('% of links')
+    # plt.xlabel('# of links.txt passed to find feasible essence')
+    # plt.ylabel('% of links.txt')
     # plt.grid(True)
     # plt.show()
 

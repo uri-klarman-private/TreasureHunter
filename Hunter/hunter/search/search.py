@@ -112,7 +112,7 @@ class MarcelSearch:
                 if links_list:
                     break
                 else:
-                    print 'No links were found in this try. going to retry...'
+                    print 'No links.txt were found in this try. going to retry...'
             except Exception as inst:
                 print traceback.format_exc()
                 print 'Search failed... going to retry...'

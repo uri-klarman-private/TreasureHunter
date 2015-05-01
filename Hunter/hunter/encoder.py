@@ -81,14 +81,14 @@ def search_for_words(search_engine, distillery, keywords_dict, stats, collected_
     return link_found, link_i, link, essence
 
 def find_starting_links_list(search_engine, words, used_link, used_link_number):
-    # create first list of links
+    # create first list of links.txt
     links_list, next_url = search_engine.new_search(words)
 
-    # if no links found
+    # if no links.txt found
     if not links_list:
         return links_list, next_url
 
-    # if this is a traceback move, pass over first used_link_number links
+    # if this is a traceback move, pass over first used_link_number links.txt
     if used_link:
         used_links_list = links_list
         while (len(used_links_list) < used_link_number) and links_list:

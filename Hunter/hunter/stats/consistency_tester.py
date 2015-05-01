@@ -65,7 +65,7 @@ def sample_search():
         print 'starting combo ', i, ' : ', combo
         current_search_links, next_url = search_engine.new_search(combo)
         if len(current_search_links) != 10:
-            print 'links are missing from page - will not sample'
+            print 'links.txt are missing from page - will not sample'
         else :
             write_str_list(sample_file_name + '_chunk_' + str(i),current_search_links[:num_links_per_combo])
 
