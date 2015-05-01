@@ -27,7 +27,10 @@ def create_lda_model():
     logging.info('total time is: %s', end_time - start_time)
 
     logging.info('about to load all docs')
-    all_docs = load_all_docs()
+    with open('./resources/LDA_processing/all_docs.pkl', mode='rb') as f:
+        all_docs = pickle.load(f)
+        return all_docs
+
     logging.info('about to load english words')
     with open('./resources/LDA_input/english_full_list.txt') as f:
         english_words = f.read().splitlines()
@@ -47,11 +50,11 @@ def create_lda_model():
     del good_english_words
 
     logging.info('about to save texts')
-    with open('./resources/pickled/texts.pkl', mode='wb') as f:
+    with open('./resources/LDA_processing/texts.pkl', mode='wb') as f:
         pickle.dump(texts, f)
 
     logging.info('about to load texts')
-    with open('./resources/pickled/texts.pkl', mode='rb') as f:
+    with open('./resources/LDA_processing/texts.pkl', mode='rb') as f:
         texts = pickle.load(f)
 
     logging.info('about to create dictionary')
@@ -62,37 +65,46 @@ def create_lda_model():
     dictionary.filter_extremes(no_below=750, no_above=0.1)
     keys = dictionary.keys()
     logging.info('dict size after filter: %s', len(keys))
-    dictionary.save('./resources/LDA_output/lda.dict')
-    dictionary.save_as_text('./resources/LDA_output/lda_dict.txt')
+    dictionary.save('./resources/LDA_processing/lda.dict')
+    dictionary.save_as_text('./resources/LDA_processing/lda_dict.txt')
 
     logging.info('about to create corpus')
     corpus = [dictionary.doc2bow(text) for text in texts]
 
     logging.info('about to save corpus as mm file')
-    corpora.MmCorpus.serialize('./resources/LDA_output/corpus.mm', corpus)
+    corpora.MmCorpus.serialize('./resources/LDA_processing/corpus.mm', corpus)
 
-    # logging.info('about to load dictionary file')
-    # dictionary = corpora.Dictionary.load('./resources/LDA_output/lda.dict')
-    #
-    # logging.info('about to load corpus as mm file')
-    # corpus = corpora.MmCorpus('./resources/LDA_output/corpus.mm')
-    #
-    # logging.print('about to start LDA model')
-    # lda = LdaModel(corpus, id2word=dictionary, num_topics=num_topics)
-    # logging.info('finished LDA model')
-    #
-    # logging.info('about to save ldaModel')
-    # lda.save('./resources/LDA_output/LdaModel')
-    #
-    # logging.info('about to load ldaModel')
-    # lda = LdaModel.load('./resources/LDA_output/LdaModel')
-    #
-    # logging.info('about to find topics')
-    # topics = lda.show_topics(num_topics=num_topics, num_words=10000, log=True, formatted=False)
-    #
-    # logging.info('about to save topics')
-    # with open('./resources/LDA_output/topics.pkl', mode='wb') as f:
-    #     pickle.dump(topics, f)
+    logging.info('about to load dictionary file')
+    dictionary = corpora.Dictionary.load('./resources/LDA_processing/lda.dict')
+
+    logging.info('about to load corpus as mm file')
+    corpus = corpora.MmCorpus('./resources/LDA_processing/corpus.mm')
+
+    logging.print('about to start LDA model')
+    lda = LdaModel(corpus, id2word=dictionary, num_topics=num_topics)
+    logging.info('finished LDA model')
+
+    logging.info('about to save ldaModel')
+    lda.save('./resources/LDA_processing/LdaModel')
+
+    logging.info('about to load ldaModel')
+    lda = LdaModel.load('./resources/LDA_processing/LdaModel')
+
+    logging.info('about to find topics')
+    topics = lda.show_topics(num_topics=num_topics, num_words=10000, log=True, formatted=False)
+
+    logging.info('about to save topics')
+    with open('./resources/LDA_processing/topics.pkl', mode='wb') as f:
+        pickle.dump(topics, f)
+
+    dict_word_sets = find_words_from_lda_model()
+    with open('./resources/LDA_processing/dict_word_sets.pkl', mode='wb') as f:
+        pickle.dump(dict_word_sets, f)
+
+    topics_words = extract_words_from_word_sets()
+    with open('./resources/LDA_result/topic_words.pkl', mode='wt', encoding='utf-8') as f:
+        f.write('\n'.join(topics_words))
+
 
 def create_all_docs():
     all_docs = []
@@ -106,7 +118,7 @@ def create_all_docs():
         all_docs += docs_from_chunk(chunk_path)
 
     logging.info('Finished going over all chunks. saving...')
-    with open('./resources/pickled/all_docs.pkl', mode='wb') as f:
+    with open('./resources/LDA_processing/all_docs.pkl', mode='wb') as f:
         pickle.dump(all_docs, f)
 
 
@@ -133,42 +145,32 @@ def create_doc(doc_lines):
     return doc
 
 
-def load_all_docs():
-    with open('./resources/pickled/all_docs.pkl', mode='rb') as f:
-        all_docs = pickle.load(f)
-        return all_docs
+def create_english_full_list():
+    english_full_list = []
+    s = set()
+    with open('written.num') as f:
+        for line in f:
+            word = line.split()[1].lower()
+            if word not in s:
+                s.add(word)
+                english_full_list.append(word)
 
+    with open('english_full_list.txt', mode='wt', encoding='utf-8') as f:
+        f.write('\n'.join(english_full_list))
 
-# def create_english_full_list():
-# english_full_list.txt = []
-#     s = set()
-#     with open('written.num') as f:
-#         for line in f:
-#             word = line.split()[1].lower()
-#             if word not in s:
-#                 s.add(word)
-#                 english_full_list.txt.append(word)
-#
-#     with open('english_full_list.txt', mode='wt', encoding='utf-8') as f:
-#         f.write('\n'.join(english_full_list.txt))
-#
-#     print('done')
 
 def find_words_from_lda_model():
-    with open('./resources/LDA_output/topics.pkl', mode='rb') as f:
+    with open('./resources/LDA_processing/topics.pkl', mode='rb') as f:
         topics = pickle.load(f)
-    # topics = [[tuple[1] for tuple in topic[:250]] for topic in topics]
+
     filtered_topics = []
     for topic in topics:
-        temp_topic = [tuple for tuple in topic if tuple[0] >= 0.0001]
+        temp_topic = [t for t in topic if t[0] >= 0.0001]
         filtered_topics.append(temp_topic)
     del topics
 
     words2docs = {}
-    # dictionary = corpora.Dictionary.load('chunks.dict')
-    # words = list(dictionary.values())
-    # for word in words:
-    #     words2docs[word] = []
+
     for i, topic in enumerate(filtered_topics):
         for tuple in topic:
             word = tuple[1]
@@ -200,25 +202,25 @@ def find_words_from_lda_model():
     return dict_word_sets
 
 
+def extract_words_from_word_sets():
+    with open('./resources/LDA_processing/dict_word_sets.pkl', mode='rb') as f:
+        dict_word_sets = pickle.load(f)
+
+    topics_words = []
+    for word_set in dict_word_sets:
+        for word_tuple in word_set[1]:
+            topics_words.append(word_tuple[1])
+
+    return topics_words
+
+
 if __name__ == '__main__':
 
     # create_lda_model()
 
-    dict_word_sets = find_words_from_lda_model()
-    with open('./resources/LDA_output/dict_word_sets.pkl', mode='wb') as f:
-        pickle.dump(dict_word_sets, f)
-
-    # topic_dict_words = []
-    # for word_set in dict_word_sets:
-    #     for tuple in word_set[1]:
-    #         topic_dict_words.append(tuple[1])
-    # with open('pickled/topic_dict_words.pkl', mode='wt', encoding='utf-8') as f:
-    #     f.write('\n'.join(topic_dict_words))
-    #
-    #
-    # with open('pickled/topic_dict_words.pkl') as f:
-    #     topic_dict_words = f.read().splitlines()
-    # with open('pickled/dict_word_sets.pkl', mode='rb') as f:
-    #     dict_word_sets = pickle.load(f)
+    with open('./resources/LDA_result/topic_words.pkl') as f:
+        topic_dict_words = f.read().splitlines()
+    with open('./resources/LDA_processing/dict_word_sets.pkl', mode='rb') as f:
+        dict_word_sets = pickle.load(f)
 
     logging.info('Done')
