@@ -62,3 +62,5 @@ target/
 *.pkl
 # LDA model heavy file
 *.mm
+
+Hunter/.idea/workspace.xml
