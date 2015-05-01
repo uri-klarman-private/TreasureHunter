@@ -24,7 +24,7 @@ def create_lda_model():
     start_time = datetime.datetime.now()
     create_all_docs()
     end_time = datetime.datetime.now()
-    logging.info('total time is: ', end_time - start_time)
+    logging.info('total time is: %s', end_time - start_time)
 
     logging.info('about to load all docs')
     all_docs = load_all_docs()
@@ -40,7 +40,7 @@ def create_lda_model():
         filtered_doc = [word for word in doc if word in good_english_words]
         texts.append(filtered_doc)
         if i % 5000 == 0:
-            logging.info('Finished doc: ', i)
+            logging.info('Finished doc: %s', i)
 
     logging.info('about to release memory of all_docs and english_words')
     del all_docs
@@ -57,11 +57,11 @@ def create_lda_model():
     logging.info('about to create dictionary')
     dictionary = corpora.Dictionary(texts)
     keys = dictionary.keys()
-    logging.info('dict size before filter: ', len(keys))
+    logging.info('dict size before filter: %s', len(keys))
     dictionary.filter_extremes(keep_n=150000)
     dictionary.filter_extremes(no_below=750, no_above=0.1)
     keys = dictionary.keys()
-    logging.info('dict size after filter: ', len(keys))
+    logging.info('dict size after filter: %s', len(keys))
     dictionary.save('./resources/LDA_output/lda.dict')
     dictionary.save_as_text('./resources/LDA_output/lda_dict.txt')
 
@@ -71,28 +71,28 @@ def create_lda_model():
     logging.info('about to save corpus as mm file')
     corpora.MmCorpus.serialize('./resources/LDA_output/corpus.mm', corpus)
 
-    logging.info('about to load dictionary file')
-    dictionary = corpora.Dictionary.load('./resources/LDA_output/lda.dict')
-
-    logging.info('about to load corpus as mm file')
-    corpus = corpora.MmCorpus('./resources/LDA_output/corpus.mm')
-
-    logging.print('about to start LDA model')
-    lda = LdaModel(corpus, id2word=dictionary, num_topics=num_topics)
-    logging.info('finished LDA model')
-
-    logging.info('about to save ldaModel')
-    lda.save('./resources/LDA_output/LdaModel')
-
-    logging.info('about to load ldaModel')
-    lda = LdaModel.load('./resources/LDA_output/LdaModel')
-
-    logging.info('about to find topics')
-    topics = lda.show_topics(num_topics=num_topics, num_words=10000, log=True, formatted=False)
-
-    logging.info('about to save topics')
-    with open('./resources/LDA_output/topics.pkl', mode='wb') as f:
-        pickle.dump(topics, f)
+    # logging.info('about to load dictionary file')
+    # dictionary = corpora.Dictionary.load('./resources/LDA_output/lda.dict')
+    #
+    # logging.info('about to load corpus as mm file')
+    # corpus = corpora.MmCorpus('./resources/LDA_output/corpus.mm')
+    #
+    # logging.print('about to start LDA model')
+    # lda = LdaModel(corpus, id2word=dictionary, num_topics=num_topics)
+    # logging.info('finished LDA model')
+    #
+    # logging.info('about to save ldaModel')
+    # lda.save('./resources/LDA_output/LdaModel')
+    #
+    # logging.info('about to load ldaModel')
+    # lda = LdaModel.load('./resources/LDA_output/LdaModel')
+    #
+    # logging.info('about to find topics')
+    # topics = lda.show_topics(num_topics=num_topics, num_words=10000, log=True, formatted=False)
+    #
+    # logging.info('about to save topics')
+    # with open('./resources/LDA_output/topics.pkl', mode='wb') as f:
+    #     pickle.dump(topics, f)
 
 def create_all_docs():
     all_docs = []
@@ -102,7 +102,7 @@ def create_all_docs():
     logging.info(chunks)
     for chunk in chunks:
         chunk_path = wet_files_path + '/' + chunk
-        logging.info('Starting chunk: ', chunk_path)
+        logging.info('Starting chunk: %s', chunk_path)
         all_docs += docs_from_chunk(chunk_path)
 
     logging.info('Finished going over all chunks. saving...')
