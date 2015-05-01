@@ -212,11 +212,11 @@ if __name__ == '__main__':
     #         topic_dict_words.append(tuple[1])
     # with open('pickled/topic_dict_words.pkl', mode='wt', encoding='utf-8') as f:
     #     f.write('\n'.join(topic_dict_words))
-
-
-    with open('pickled/topic_dict_words.pkl') as f:
-        topic_dict_words = f.read().splitlines()
-    with open('pickled/dict_word_sets.pkl', mode='rb') as f:
-        dict_word_sets = pickle.load(f)
+    #
+    #
+    # with open('pickled/topic_dict_words.pkl') as f:
+    #     topic_dict_words = f.read().splitlines()
+    # with open('pickled/dict_word_sets.pkl', mode='rb') as f:
+    #     dict_word_sets = pickle.load(f)
 
     print('Done')
