@@ -188,7 +188,7 @@ def find_words_from_lda_model():
         if topics_classification[i] == unknown:
             good_words_in_topic = [tuple for tuple in topic if tuple[0] >= 0.01]
             # good_words_in_topic = [word for word in topic if word in good_words]
-            logging.info('len(good_words_in_topic): ', len(good_words_in_topic))
+            logging.info('len(good_words_in_topic): %s', len(good_words_in_topic))
             if len(good_words_in_topic) >= 5:
                 dict_word_sets.append([i, good_words_in_topic[:10]])
                 topics_classification[i] = good
@@ -201,10 +201,13 @@ def find_words_from_lda_model():
 
 
 if __name__ == '__main__':
-    create_lda_model()
-    # dict_word_sets = find_words_from_lda_model()
-    # with open('pickled/dict_word_sets.pkl', mode='wb') as f:
-    #     pickle.dump(dict_word_sets, f)
+
+    # create_lda_model()
+
+    dict_word_sets = find_words_from_lda_model()
+    with open('./resources/LDA_output/dict_word_sets.pkl', mode='wb') as f:
+        pickle.dump(dict_word_sets, f)
+
     # topic_dict_words = []
     # for word_set in dict_word_sets:
     #     for tuple in word_set[1]:
