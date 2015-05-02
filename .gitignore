@@ -64,3 +64,5 @@ target/
 *.mm
 
 Hunter/.idea/workspace.xml
+
+*.npy
