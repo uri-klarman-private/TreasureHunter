@@ -29,7 +29,6 @@ def create_lda_model():
     logging.info('about to load all docs')
     with open('./resources/LDA_processing/all_docs.pkl', mode='rb') as f:
         all_docs = pickle.load(f)
-        return all_docs
 
     logging.info('about to load english words')
     with open('./resources/LDA_input/english_full_list.txt') as f:
@@ -80,7 +79,7 @@ def create_lda_model():
     logging.info('about to load corpus as mm file')
     corpus = corpora.MmCorpus('./resources/LDA_processing/corpus.mm')
 
-    logging.print('about to start LDA model')
+    logging.info('about to start LDA model')
     lda = LdaModel(corpus, id2word=dictionary, num_topics=num_topics)
     logging.info('finished LDA model')
 
@@ -218,9 +217,9 @@ if __name__ == '__main__':
 
     # create_lda_model()
 
-    with open('./resources/LDA_result/topic_words.pkl') as f:
-        topic_dict_words = f.read().splitlines()
-    with open('./resources/LDA_processing/dict_word_sets.pkl', mode='rb') as f:
-        dict_word_sets = pickle.load(f)
+    # with open('./resources/LDA_result/topic_words.pkl') as f:
+    #     topic_dict_words = f.read().splitlines()
+    # with open('./resources/LDA_processing/dict_word_sets.pkl', mode='rb') as f:
+    #     dict_word_sets = pickle.load(f)
 
     logging.info('Done')
