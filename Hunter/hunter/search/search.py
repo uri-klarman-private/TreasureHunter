@@ -55,7 +55,7 @@ parameters = {'lr=':'lang_en', # restricts results to documents in a specific la
 # &tbs=cdr%3A1%2Ccd_min%3A%2Ccd_max%3A1%2F1%2F2010&tbm=    1  1 2010
 # &tbs=cdr%3A1%2Ccd_min%3A9%2F9%2F1999%2Ccd_max%3A7%2F27%2F2010&tbm= 9.9.1999-2.27.2010
 
-class MarcelSearch:
+class Search:
 
     def __init__(self, page_load_timeout=7):
         self.page_load_timeout = page_load_timeout
@@ -178,7 +178,7 @@ class MarcelSearch:
         return links_list, next_url
 
 if __name__ == '__main__':
-    engine = MarcelSearch()
+    engine = Search()
     links_list, next_url = engine.new_search(['bla', 'bli', 'blu'])
     print links_list
     for i in range(100):

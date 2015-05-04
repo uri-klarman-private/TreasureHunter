@@ -2,18 +2,18 @@ import cPickle as pickle
 
 __author__ = 'uriklarman'
 
-def save(obj, name):
-    with open('resources/pickled_files/'+name+'.pkl', 'wb') as f:
+def save_pickle(obj, name):
+    with open('resources/'+name+'.pkl', 'wb') as f:
         pickle.dump(obj, f)
 
-def read(name):
-    with open('resources/pickled_files/'+name+'.pkl', 'rb') as f:
+def read_pickle(name):
+    with open('resources/'+name+'.pkl', 'rb') as f:
         obj = pickle.load(f)
     return obj
 
-def read_data(filename):
+def read_text_file(name):
     list = []
-    with open('resources/'+filename) as file:
+    with open('resources/'+name) as file:
         for line in enumerate(file):
             word = line.strip().lower()
             list.append(word)

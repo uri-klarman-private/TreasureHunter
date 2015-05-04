@@ -1,7 +1,7 @@
 import sys
 import math
 
-from jumping_the_net.marcel_search import MarcelSearch
+from search.search import Search
 from jumping_the_net.words_stats import WordsStats
 from distillery import Distillery
 from hunter.dictionary import dictionaries as dicts
@@ -108,7 +108,7 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, replace=False):
     print 'keywords (X) = ', keywords_len
     print 'Essence len = ', essence_len
     distillery = Distillery(essence_len, keywords_dict)
-    search_engine = MarcelSearch()
+    search_engine = search()
     raw_data_words = open('/Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/a_tweets/' + tweet_file).read().split()
     data_words = []
     for word in raw_data_words:
@@ -200,18 +200,8 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, replace=False):
 
 
 if __name__ == '__main__':
-    tweet_file = 'tweet_1'
-    # X_index = 3
-    # params_index = 3
-    # params = [
-    #     [101,[(1,1,5), (1,2,4), (1,3,3)]],
-    #     [256,[(1,1,5), (1,2,4), (1,3,3), (1,4,3)]],
-    #     [512,[(1,1,5), (1,2,4), (1,3,3), (1,4,3)]],
-    #     [750,[(1,1,5), (1,2,4), (1,3,3), (1,4,3)]],
-    #     ]
-    # X = params[X_index][0]
-    # D,L,F = params[X_index][1][params_index]
-    X,D,L,F = 100,1,1,2
+    tweet_file = 'tweet_1.txt'
+    X,D,L,F = 100,1,3,3
     replace = 32
     dicts.create_and_save_dicts(X,L)
     encode(tweet_file,X,D,L,F, replace=replace)
