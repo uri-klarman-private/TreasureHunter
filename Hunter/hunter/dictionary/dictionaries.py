@@ -8,8 +8,6 @@ from hunter.dictionary.combinations_provider import load_triplets, create_arbitr
 
 __author__ = 'uriklarman'
 
-end_chain_word = 'done'
-
 def create_dictionaries(keywords_path, english_words_path, links_path, X, L, start, links_only, keywords_dict):
     if not links_only:
         keywords_dict = create_keywords_dict(keywords_path, start, X)
@@ -136,22 +134,22 @@ def add_link_to_links_file(link_str, keywords_dict, X, L):
 
 def save_dictionaries(keywords_dict, english_dict, links_dict, X, L, links_only):
     if not links_only:
-        with open('resources/dictionaries_pkl/keywords_dict_%d_%d.pkl'%(X,L), 'w') as f:
+        with open('../hunter/resources/dictionaries_pkl/keywords_dict_%d_%d.pkl'%(X,L), 'w') as f:
             pickle.dump(keywords_dict, f)
-        with open('resources/dictionaries_pkl/english_dict.pkl', 'w') as f:
+        with open('../hunter/resources/dictionaries_pkl/english_dict.pkl', 'w') as f:
             pickle.dump(english_dict, f)
 
-    with open('resources/dictionaries_pkl/links_dict_%d_%d.pkl'%(X,max(L,3)), 'w') as f:
+    with open('../hunter/resources/dictionaries_pkl/links_dict_%d_%d.pkl'%(X,max(L,3)), 'w') as f:
             pickle.dump(links_dict, f)
 
 def load_dictionaries(X, L):
     while True:
         try:
-            with open('resources/dictionaries_pkl/keywords_dict_%d_%d.pkl'%(X,L), 'r') as f:
+            with open('../hunter/resources/dictionaries_pkl/keywords_dict_%d_%d.pkl'%(X,L), 'r') as f:
                 keywords_dict = pickle.load(f)
-            with open('resources/dictionaries_pkl/english_dict.pkl', 'r') as f:
+            with open('../hunter/resources/dictionaries_pkl/english_dict.pkl', 'r') as f:
                 english_dict = pickle.load(f)
-            with open('resources/dictionaries_pkl/links_dict_%d_%d.pkl'%(X,max(L,3)), 'r') as f:
+            with open('../hunter/resources/dictionaries_pkl/links_dict_%d_%d.pkl'%(X,max(L,3)), 'r') as f:
                 links_dict = pickle.load(f)
             break
         except Exception as inst:
@@ -161,8 +159,10 @@ def load_dictionaries(X, L):
 
 def create_and_save_dicts(X, L, dict_first_word_i=0, links_only=False, keywords_dict=None):
     keywords_dict, english_dict, links_dict = create_dictionaries(
-        '/Users/uriklarman/Development/PycharmProjects/keywords_learning/pickled/topic_dict_words.pkl',
-        'resources/written.num', 'resources/links.txt.txt', X, L, dict_first_word_i, links_only, keywords_dict)
+        '../keywordslearner/resources/LDA_result/topic_words.pkl',
+        '../keywordslearner/resources/LDA_input/written.num',
+        '../hunter/resources/links.txt',
+        X, L, dict_first_word_i, links_only, keywords_dict)
     print 'len of english keywords / 2 : ', len(english_dict) / 2
     print 'creating dictionaries Done'
     save_dictionaries(keywords_dict, english_dict, links_dict, X, L, links_only)

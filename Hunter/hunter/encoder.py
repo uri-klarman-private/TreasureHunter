@@ -2,9 +2,10 @@ import sys
 import math
 
 from search.search import Search
-from jumping_the_net.words_stats import WordsStats
+from hunter.dictionary.dictionaries import create_and_save_dicts, load_dictionaries
+
+from stats.words_stats import WordsStats
 from distillery import Distillery
-from hunter.dictionary import dictionaries as dicts
 
 
 __author__ = 'uriklarman'
@@ -99,24 +100,24 @@ def find_starting_links_list(search_engine, words, used_link, used_link_number):
 
     return links_list, next_url
 
-def encode(tweet_file, X, D, L, F, dict_first_word_i=0, replace=False):
+def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
     groups = []
-    keywords_dict, english_dict, links_dict = dicts.load_dictionaries(X,L)
-    # search = bing_search.BingSearch()
+    keywords_dict, english_dict, links_dict = load_dictionaries(X,L)
+
     keywords_len = len(keywords_dict) / 2
     essence_len = int(math.pow(keywords_len, float(F) / (D+L+F)))
     print 'keywords (X) = ', keywords_len
     print 'Essence len = ', essence_len
     distillery = Distillery(essence_len, keywords_dict)
-    search_engine = search()
-    raw_data_words = open('/Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/a_tweets/' + tweet_file).read().split()
+    search_engine = Search()
+    raw_data_words = open(tweet_file).read().split()
     data_words = []
     for word in raw_data_words:
         for keyword in english_dict[word.lower()]:
             data_words.append(keyword)
     end_word =keywords_dict[keywords_len - 1]
-    if replace:
-        end_word = keywords_dict[replace - 1]
+    if endword_index:
+        end_word = keywords_dict[endword_index]
     words = [end_word] * (D+L+F)
     collected_words = [(words, '', 0)]
     stats = WordsStats(X, D, L, F, dict_first_word_i, tweet_file, collected_words,groups)
@@ -200,8 +201,8 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, replace=False):
 
 
 if __name__ == '__main__':
-    tweet_file = 'tweet_1.txt'
+    tweet_file = '../hunter/resources/tweet_1.txt'
     X,D,L,F = 100,1,3,3
-    replace = 32
-    dicts.create_and_save_dicts(X,L)
-    encode(tweet_file,X,D,L,F, replace=replace)
+    endword_index = 32
+    create_and_save_dicts(X,L)
+    encode(tweet_file,X,D,L,F, endword_index=endword_index)
