@@ -2,19 +2,21 @@ import re
 import cPickle as pickle
 import itertools
 import traceback
+from os import path
 
 from hunter.dictionary.combinations_provider import create_pseudo_random_combinations, create_ordered_combinations
 
 
 __author__ = 'uriklarman'
-keywords_learner_path = '../../../KeywordsLearner/keywordslearner/'
-keywords_path = keywords_learner_path + 'resources/LDA_result/topic_words.pkl'
-english_words_path = keywords_learner_path + 'resources/LDA_input/written.num'
-links_path = '../resources/links.txt'
-dicts_pkl_path = '../resources/dictionaries_pkl/'
-keywords_dict_path = dicts_pkl_path + 'keywords_dict.pkl'
-english_dict_path = dicts_pkl_path + 'english_dict.pkl'
-links_dict_path = dicts_pkl_path + 'links_dict.pkl'
+keywords_learner_resources_path = path.dirname(__file__) + '/../../../KeywordsLearner/keywordslearner/resources/'
+keywords_path = keywords_learner_resources_path + 'LDA_result/topic_words.pkl'
+english_words_path = keywords_learner_resources_path + 'LDA_input/written.num'
+
+resources_path = path.dirname(__file__) + '/../resources/'
+links_path = resources_path + 'links.txt'
+keywords_dict_path = resources_path + 'dictionaries_pkl/keywords_dict.pkl'
+english_dict_path = resources_path + 'dictionaries_pkl/english_dict.pkl'
+links_dict_path = resources_path + 'dictionaries_pkl/links_dict.pkl'
 
 last_english_line = 844587
 

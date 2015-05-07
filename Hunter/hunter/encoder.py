@@ -102,7 +102,7 @@ def find_starting_links_list(search_engine, words, used_link, used_link_number):
 
 def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
     groups = []
-    keywords_dict, english_dict, links_dict = load_dictionaries(X,L)
+    keywords_dict, english_dict, links_dict = load_dictionaries()
 
     keywords_len = len(keywords_dict) / 2
     essence_len = int(math.pow(keywords_len, float(F) / (D+L+F)))
@@ -204,5 +204,5 @@ if __name__ == '__main__':
     tweet_file = 'resources/tweet_1.txt'
     X,D,L,F = 100,1,3,3
     endword_index = 32
-    create_and_save_dicts(X,L)
+    # create_and_save_dicts(X,L)
     encode(tweet_file,X,D,L,F, endword_index=endword_index)
