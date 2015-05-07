@@ -201,7 +201,7 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
 
 
 if __name__ == '__main__':
-    tweet_file = '../hunter/resources/tweet_1.txt'
+    tweet_file = 'resources/tweet_1.txt'
     X,D,L,F = 100,1,3,3
     endword_index = 32
     create_and_save_dicts(X,L)
