@@ -1,9 +1,10 @@
 from datetime import datetime
+from hunter.dictionary.dictionaries import resources_path
 
 __author__ = 'uriklarman'
 import cPickle as pickle
 
-stats_dir_path = '/Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/a_stats/'
+stats_dir_path = resources_path + 'stats_pkl/'
 
 class WordsStats:
     def __init__(self, X, D, L, F, dict_first_word_i, tweet_file, collected_words, groups):

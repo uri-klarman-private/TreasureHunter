@@ -93,9 +93,9 @@ def create_links_dictionary(X, L, keywords_dict):
 
 
 def add_link_to_links_file(link_str, keywords_dict, X, L):
-    with open('resources/links.txt.txt', 'a') as f:
-        f.write("\n" +link_str)
-    links_dict = create_links_dictionary(X,L,keywords_dict)
+    with open(links_path, 'a') as f:
+        f.write("\n" + link_str)
+    links_dict = create_links_dictionary(X, L, keywords_dict)
     save_links_dict(links_dict)
     return links_dict
 

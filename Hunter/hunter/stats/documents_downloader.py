@@ -5,7 +5,6 @@ from time import sleep
 import traceback
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
-from jumping_the_net.distillery import Distillery
 from google_search import GoogleSearch
 
 __author__ = 'uriklarman'

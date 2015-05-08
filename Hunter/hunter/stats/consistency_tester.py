@@ -36,7 +36,7 @@ def read_str_list(file_name):
 
 
 def create_search_keywords():
-    keywords_dict, english_dict, links_dict = dicts.load_dictionaries(X,L)
+    keywords_dict, english_dict, links_dict = dicts.load_dictionaries()
     keywords = [keywords_dict[i] for i in range(X)]
     keywords_combos = list(itertools.combinations(keywords,r=3))
     random.shuffle(keywords_combos)
@@ -47,7 +47,7 @@ def create_search_keywords():
                 f.write('\n')
 
 def create_links_to_sample():
-    keywords_dict, english_dict, links_dict = dicts.load_dictionaries(X,L)
+    keywords_dict, english_dict, links_dict = dicts.load_dictionaries()
     links = [x for x in links_dict.values() if isinstance(x, str)][:num_links_in_sample]
     write_str_list(links_to_sample_file_name, links)
 
@@ -79,7 +79,7 @@ def sample_links_essences():
     time_stamp = str(datetime.now())
     sample_file_name = '/Users/uriklarman/Development/PycharmProjects/no_git/jumping_the_net/resources/consistency/links_sample_' + time_stamp
 
-    keywords_dict, english_dict, links_dict = dicts.load_dictionaries(X,L)
+    keywords_dict, english_dict, links_dict = dicts.load_dictionaries()
     distillery = Distillery(essence_len=E, keywords_dict=keywords_dict)
 
     all_links = read_str_list(links_to_sample_file_name)
@@ -87,12 +87,12 @@ def sample_links_essences():
     essences = []
     for i,link in enumerate(links):
         print ('starting link: %d , %s')%(i,link)
-        for i in range(3):
+        for j in range(3):
             try:
                 essence, uncut_essence = distillery.distill(link, keywords_dict)
                 break
             except:
-                print 'Distillery failed for the ', i, ' time. restarting browser...'
+                print 'Distillery failed for the %s time. restarting browser...'% j
                 distillery.restart_browser()
         essences.append(essence)
 

@@ -2,7 +2,7 @@ import sys
 import math
 
 from search.search import Search
-from hunter.dictionary.dictionaries import create_and_save_dicts, load_dictionaries
+import hunter.dictionary.dictionaries as dicts
 
 from stats.words_stats import WordsStats
 from distillery import Distillery
@@ -102,7 +102,7 @@ def find_starting_links_list(search_engine, words, used_link, used_link_number):
 
 def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
     groups = []
-    keywords_dict, english_dict, links_dict = load_dictionaries()
+    keywords_dict, english_dict, links_dict = dicts.load_dictionaries()
 
     keywords_len = len(keywords_dict) / 2
     essence_len = int(math.pow(keywords_len, float(F) / (D+L+F)))
@@ -110,12 +110,12 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
     print 'Essence len = ', essence_len
     distillery = Distillery(essence_len, keywords_dict)
     search_engine = Search()
-    raw_data_words = open(tweet_file).read().split()
+    raw_data_words = open(dicts.resources_path + tweet_file).read().split()
     data_words = []
     for word in raw_data_words:
         for keyword in english_dict[word.lower()]:
             data_words.append(keyword)
-    end_word =keywords_dict[keywords_len - 1]
+    end_word = keywords_dict[keywords_len - 1]
     if endword_index:
         end_word = keywords_dict[endword_index]
     words = [end_word] * (D+L+F)
@@ -201,7 +201,7 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
 
 
 if __name__ == '__main__':
-    tweet_file = 'resources/tweet_1.txt'
+    tweet_file = 'tweet_1.txt'
     X,D,L,F = 100,1,3,3
     endword_index = 32
     # create_and_save_dicts(X,L)
