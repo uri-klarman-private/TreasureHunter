@@ -13,18 +13,23 @@ keywords_path = keywords_learner_resources_path + 'LDA_result/topic_words.pkl'
 english_words_path = keywords_learner_resources_path + 'LDA_input/written.num'
 
 resources_path = path.dirname(__file__) + '/../resources/'
-links_path = resources_path + 'links.txt'
-keywords_dict_path = resources_path + 'dictionaries_pkl/keywords_dict.pkl'
-english_dict_path = resources_path + 'dictionaries_pkl/english_dict.pkl'
-links_dict_path = resources_path + 'dictionaries_pkl/links_dict.pkl'
+test_case_path = resources_path + '%s_%s_%s_%s/'
+links_path = test_case_path + 'links.txt'
+keywords_dict_path = test_case_path + 'keywords_dict.pkl'
+english_dict_path = test_case_path + 'english_dict.pkl'
+links_dict_path = test_case_path + 'links_dict.pkl'
 
 last_english_line = 844587
 
 
-def create_dictionaries(X, L, start):
+def create_dictionaries(D, L, F, X, start):
     keywords_dict = create_keywords_dict(start, X)
-    english_dict = create_english_dict(keywords_dict)
-    links_dict = create_links_dictionary(X, L, keywords_dict)
+    if X > 83:
+        english_dict = create_english_dict(X, keywords_dict)
+    else:
+        english_dict = create_english_dict(X, keywords_dict, keywords_per_word=4)
+
+    links_dict = create_links_dictionary(D, L, F, X, keywords_dict)
 
     return keywords_dict, english_dict, links_dict
 
@@ -57,7 +62,7 @@ def create_keywords_dict(start, X):
     return keywords_dict
 
 
-def create_english_dict(keywords_dict, keywords_per_word=3):
+def create_english_dict(X, keywords_dict, keywords_per_word=3):
     combinations = create_ordered_combinations(range(X), keywords_per_word)
 
     english_dict = {}
@@ -80,10 +85,10 @@ def create_english_dict(keywords_dict, keywords_per_word=3):
     return english_dict
 
 
-def create_links_dictionary(X, L, keywords_dict):
+def create_links_dictionary(D, L, F, X, keywords_dict):
     link_combinations = create_pseudo_random_combinations(range(X), L, result_limit=100000, avoid_all_combinations=True)
     links_dict = {}
-    with open(links_path) as f:
+    with open(links_path % (D, L, F, X)) as f:
         for line, combination in itertools.izip(f,link_combinations):
             link = line.strip()
             keywords_combination = tuple(keywords_dict[index] for index in combination)
@@ -92,35 +97,35 @@ def create_links_dictionary(X, L, keywords_dict):
     return links_dict
 
 
-def add_link_to_links_file(link_str, keywords_dict, X, L):
-    with open(links_path, 'a') as f:
+def add_link_to_links_file(link_str, keywords_dict, D, L, F, X):
+    with open(links_path % (D, L, F, X), 'a') as f:
         f.write("\n" + link_str)
-    links_dict = create_links_dictionary(X, L, keywords_dict)
-    save_links_dict(links_dict)
+    links_dict = create_links_dictionary(D, L, F, X, keywords_dict)
+    save_links_dict(links_dict, D, L, F, X)
     return links_dict
 
 
-def save_dictionaries(keywords_dict, english_dict, links_dict):
-    with open(keywords_dict_path, 'w') as f:
+def save_dictionaries(keywords_dict, english_dict, links_dict, D, L, F, X):
+    with open(keywords_dict_path % (D, L, F, X), 'w') as f:
         pickle.dump(keywords_dict, f)
-    with open(english_dict_path, 'w') as f:
+    with open(english_dict_path % (D, L, F, X), 'w') as f:
         pickle.dump(english_dict, f)
-    save_links_dict(links_dict)
+    save_links_dict(links_dict, D, L, F, X)
 
 
-def save_links_dict(links_dict):
-    with open(links_dict_path, 'w') as f:
+def save_links_dict(links_dict, D, L, F, X):
+    with open(links_dict_path % (D, L, F, X), 'w') as f:
         pickle.dump(links_dict, f)
 
 
-def load_dictionaries():
+def load_dictionaries(D, L, F, X):
     while True:
         try:
-            with open(keywords_dict_path, 'r') as f:
+            with open(keywords_dict_path % (D, L, F, X), 'r') as f:
                 keywords_dict = pickle.load(f)
-            with open(english_dict_path, 'r') as f:
+            with open(english_dict_path % (D, L, F, X), 'r') as f:
                 english_dict = pickle.load(f)
-            with open(links_dict_path, 'r') as f:
+            with open(links_dict_path % (D, L, F, X), 'r') as f:
                 links_dict = pickle.load(f)
             break
         except Exception as inst:
@@ -129,11 +134,11 @@ def load_dictionaries():
     return keywords_dict, english_dict, links_dict
 
 
-def create_and_save_dicts(X, L, dict_first_word_i=0):
-    keywords_dict, english_dict, links_dict = create_dictionaries(X,L,dict_first_word_i)
+def create_and_save_dicts(D, L, F, X, dict_first_word_i=0):
+    keywords_dict, english_dict, links_dict = create_dictionaries(D, L, F, X, dict_first_word_i)
     print 'len of english keywords / 2 : ', len(english_dict) / 2
     print 'creating dictionaries Done'
-    save_dictionaries(keywords_dict, english_dict, links_dict)
+    save_dictionaries(keywords_dict, english_dict, links_dict, D, L, F, X)
     print 'saving dictionaries Done'
 
     return keywords_dict, english_dict, links_dict
@@ -170,10 +175,11 @@ def translate_5_keywords_to_indexes(five_words, num_of_words, keywords_dict, key
 
 
 if __name__ == '__main__':
-    X=100
-    L=3
-    create_and_save_dicts(X,L)
-    keywords_dict, english_dict, links_dict = load_dictionaries()
+    # D, L, F, X = 1,3,3, 94
+    D, L, F, X = 1,3,4, 64
+
+    create_and_save_dicts(D, L, F, X)
+    keywords_dict, english_dict, links_dict = load_dictionaries(D, L, F, X)
     print 'done'
 
     # with open('resources/written_keywords.num') as file:

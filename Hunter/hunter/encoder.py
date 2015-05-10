@@ -100,9 +100,9 @@ def find_starting_links_list(search_engine, words, used_link, used_link_number):
 
     return links_list, next_url
 
-def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
+def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
     groups = []
-    keywords_dict, english_dict, links_dict = dicts.load_dictionaries()
+    keywords_dict, english_dict, links_dict = dicts.load_dictionaries(D, L, F, X)
 
     keywords_len = len(keywords_dict) / 2
     essence_len = int(math.pow(keywords_len, float(F) / (D+L+F)))
@@ -120,7 +120,7 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
         end_word = keywords_dict[endword_index]
     words = [end_word] * (D+L+F)
     collected_words = [(words, '', 0)]
-    stats = WordsStats(X, D, L, F, dict_first_word_i, tweet_file, collected_words,groups)
+    stats = WordsStats(D, L, F, X, dict_first_word_i, tweet_file, collected_words,groups)
 
     try:
         while data_words:
@@ -147,7 +147,7 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
             words = [data_words.pop()]
 
             if link not in links_dict:
-                links_dict = dicts.add_link_to_links_file(link, keywords_dict, X, L)
+                links_dict = dicts.add_link_to_links_file(link, keywords_dict, D, L, F, X)
             link_words = links_dict[link][::-1]
             for i in range(L):
                 words.append(link_words[i])
@@ -202,7 +202,9 @@ def encode(tweet_file, X, D, L, F, dict_first_word_i=0, endword_index=False):
 
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
-    X,D,L,F = 100,1,3,3
-    endword_index = 32
-    # create_and_save_dicts(X,L)
-    encode(tweet_file,X,D,L,F, endword_index=endword_index)
+
+    # D, L, F, X = 1, 3, 3, 94
+    D, L, F, X = 1, 3, 4, 64
+
+    dicts.create_and_save_dicts(D, L, F, X)
+    encode(tweet_file, D, L, F, X)

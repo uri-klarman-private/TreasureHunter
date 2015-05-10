@@ -7,14 +7,14 @@ import cPickle as pickle
 stats_dir_path = resources_path + 'stats_pkl/'
 
 class WordsStats:
-    def __init__(self, X, D, L, F, dict_first_word_i, tweet_file, collected_words, groups):
+    def __init__(self, D, L, F, X, dict_first_word_i, tweet_file, collected_words, groups):
         self.X = X
         self.D = D
         self.L = L
         self.F = F
         self.dict_first_word_i = dict_first_word_i
         self.tweet_file = tweet_file
-        self.filename = 'stats_%d_%d_%d_%d_%d_%s_%s.pkl'%(X, D, L, F, dict_first_word_i, tweet_file, str(datetime.now()))
+        self.filename = 'stats_%d_%d_%d_%d_%d_%s_%s.pkl'%(D, L, F, X, dict_first_word_i, tweet_file, str(datetime.now()))
         print 'stats file name is: ', self.filename
 
         self.uncut_essence_keywords_count = {}
