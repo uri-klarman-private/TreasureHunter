@@ -12,7 +12,7 @@ __author__ = 'uriklarman'
 
 def search_for_words(search_engine, distillery, keywords_dict, stats, collected_words, words, used_link, used_link_number):
     links_list, next_url = find_starting_links_list(search_engine, words, used_link, used_link_number)
-    traceback_threshold = 20
+    traceback_threshold = 30
     link_i = 0
     link_found = False
     while True:
@@ -203,8 +203,7 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
 
-    # D, L, F, X = 1, 3, 3, 94
-    D, L, F, X = 1, 3, 4, 64
+    D, L, F, X = 1, 2, 2, 89
 
-    dicts.create_and_save_dicts(D, L, F, X)
+    # dicts.create_and_save_dicts(D, L, F, X)
     encode(tweet_file, D, L, F, X)
