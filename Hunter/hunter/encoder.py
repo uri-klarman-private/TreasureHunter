@@ -10,9 +10,10 @@ from distillery import Distillery
 
 __author__ = 'uriklarman'
 
+
 def search_for_words(search_engine, distillery, keywords_dict, stats, collected_words, words, used_link, used_link_number):
     links_list, next_url = find_starting_links_list(search_engine, words, used_link, used_link_number)
-    traceback_threshold = 30
+    traceback_threshold = 100
     link_i = 0
     link_found = False
     while True:
@@ -76,10 +77,11 @@ def search_for_words(search_engine, distillery, keywords_dict, stats, collected_
             print "Could not continue search. given next_url: '%s'"%(next_url)
             print 'going to back trace!'
             print '!'*30
-            link_found, link_i, link, essence = (False,0,'',[])
+            link_found, link_i, link, essence = (False, 0, '', [])
             break
 
     return link_found, link_i, link, essence
+
 
 def find_starting_links_list(search_engine, words, used_link, used_link_number):
     # create first list of links.txt
@@ -99,6 +101,7 @@ def find_starting_links_list(search_engine, words, used_link, used_link_number):
         links_list = used_links_list[used_link_number+1:]
 
     return links_list, next_url
+
 
 def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
     groups = []
@@ -203,7 +206,7 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
 
-    D, L, F, X = 1, 2, 2, 89
+    D, L, F, X = 1, 2, 3, 100
 
-    # dicts.create_and_save_dicts(D, L, F, X)
+    dicts.create_and_save_dicts(D, L, F, X)
     encode(tweet_file, D, L, F, X)

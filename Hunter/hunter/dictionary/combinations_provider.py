@@ -9,7 +9,7 @@ SEED = 1609
 
 def random_product(*args, **kwds):
     pools = map(tuple, args) * kwds.get('repeat', 1)
-    rand = map(tuple, args) * kwds.get('rand')
+    rand = kwds.get('rand')
     return tuple(rand.choice(pool) for pool in pools)
 
 

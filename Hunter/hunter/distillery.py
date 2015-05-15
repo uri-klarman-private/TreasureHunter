@@ -1,19 +1,14 @@
 from datetime import datetime
+from random import Random
+
 from selenium.common.exceptions import TimeoutException
+from hunter.dictionary.combinations_provider import SEED
+
 
 __author__ = 'uriklarman'
 
 from selenium import webdriver
-import lxml.html as lh
-import nltk
-from bs4 import BeautifulSoup
 import re
-from BeautifulSoup import BeautifulSoup as bs
-import urlparse
-from urllib2 import urlopen
-from urllib import urlretrieve
-import os
-import sys
 import time
 
 class Distillery:
@@ -53,24 +48,6 @@ class Distillery:
             print '*'*15
         except Exception as e:
             print 'browser Failed...'
-        # try:
-        #     source = self.browser.page_source
-        #     soup = BeautifulSoup(source)
-        # except:
-        #     print 'BeutifulSoup Failed...'
-        #     print e
-        #     self.browser.quit()
-        #     return []
-        # texts = soup.findAll(text=True)
-        # # visible_texts = texts
-        # visible_texts = filter(visible, texts)
-        # visible_words = []
-        # # for text in visible_texts:
-        # for text in visible_texts:
-        #     for word in text.split():
-        #         distilled_word = self.regex.sub('', word).lower()
-        #         if distilled_word:
-        #             visible_words.append(distilled_word)
 
         source = self.browser.page_source.lower()[:1000000]
         visible_words = re.sub(r'\W+', ' ', source).split()
@@ -83,27 +60,9 @@ class Distillery:
                 uncut_essence.append(word)
                 keywords_set.add(word)
 
-        # return unique_keywords
-        return uncut_essence[:self.essence_len], uncut_essence
+        # # sorting and then shuffling, in order to keep consistency
+        # uncut_essence.sort()
+        # rand = Random(SEED)
+        # rand.shuffle(uncut_essence)
 
-# def visible(element):
-#     if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
-#         return False
-#     #elif re.match('.*<!--.*-->.*', unicode(element), re.DOTALL):
-#     elif re.match('.*<!--.*-->.*', unicode(element)):
-#         return False
-#     return True
-#
-#
-# def unify_list(seq, idfun=None):
-#    # order preserving
-#    if idfun is None:
-#        def idfun(x): return x
-#    seen = {}
-#    result = []
-#    for item in seq:
-#        marker = idfun(item)
-#        if marker in seen: continue
-#        seen[marker] = 1
-#        result.append(item)
-#    return result
+        return uncut_essence[:self.essence_len], uncut_essence
