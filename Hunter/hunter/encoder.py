@@ -14,12 +14,12 @@ __author__ = 'uriklarman'
 
 def search_for_words(search_engine, distillery, keywords_dict, stats, collected_words, words, used_link, used_link_number):
     links_list, next_url = find_starting_links_list(search_engine, words, used_link, used_link_number)
-    traceback_threshold = 100
+    traceback_threshold = 500
     link_i = 0
     link_found = False
     while True:
         for link in links_list:
-            if used_link == link or link.endswith('.pdf') or 'datalounge' in link:
+            if used_link == link or 'pdf' in link or 'datalounge' in link or 'github' in link or 'ufdc.ufl.edu' in link:
                 continue
 
             link_i += 1
@@ -209,7 +209,7 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
 
-    D, L, F, X = 1, 2, 5, 102
+    D, L, F, X = 1, 2, 3, 100
 
     dicts.create_and_save_dicts(D, L, F, X)
     encode(tweet_file, D, L, F, X)

@@ -2,17 +2,19 @@ from datetime import datetime
 from random import Random
 
 from selenium.common.exceptions import TimeoutException
-
-
-__author__ = 'uriklarman'
-
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 import re
 import time
 
+__author__ = 'uriklarman'
+
+
+
 class Distillery:
 
-    def __init__(self, essence_len, keywords_dict, page_load_timeout=10):
+    def __init__(self, essence_len, keywords_dict, page_load_timeout=4):
         self.essence_len = essence_len
         self.regex = re.compile('[^a-zA-Z]')
         self.keywords_dict = keywords_dict
@@ -29,7 +31,17 @@ class Distillery:
 
     def start_browser(self):
         self.last_browser_restart_time = datetime.now()
-        self.browser = webdriver.Firefox()
+
+        chrome_options = Options()
+        chrome_options.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2,"download.prompt_for_download": False})
+        self.browser = webdriver.Chrome(chrome_options=chrome_options)
+
+        # chrome_profile = webdriver.ChromeOptions()
+        # profile = {"download.default_directory": "NUL", "download.prompt_for_download": False, }
+        # chrome_profile.add_experimental_option()
+        # chrome_profile.add_experimental_option("prefs", profile)
+        # self.driver = webdriver.Chrome(chrome_options=chrome_profile)
+        # self.browser = webdriver.Chrome()
         # self.browser.implicitly_wait(page_load_timeout/2)
         self.browser.set_script_timeout(self.page_load_timeout) # seconds
         self.browser.set_page_load_timeout(self.page_load_timeout+1)
