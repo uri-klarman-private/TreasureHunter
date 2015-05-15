@@ -19,7 +19,7 @@ def search_for_words(search_engine, distillery, keywords_dict, stats, collected_
     link_found = False
     while True:
         for link in links_list:
-            if used_link == link:
+            if used_link == link or link.endswith('.pdf') or 'datalounge' in link:
                 continue
 
             link_i += 1
