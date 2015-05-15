@@ -1,5 +1,6 @@
 import sys
 import math
+import traceback
 
 from search.search import Search
 import hunter.dictionary.dictionaries as dicts
@@ -70,6 +71,7 @@ def search_for_words(search_engine, distillery, keywords_dict, stats, collected_
             try:
                 links_list, next_url = search_engine.continuing_search(next_url)
             except Exception as inst:
+                print(traceback.format_exc())
                 do_backtrace = True
 
         if do_backtrace:
@@ -166,6 +168,7 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
             print ('collected_words len: ', len(collected_words))
 
     except Exception:
+        print(traceback.format_exc())
         t, v, tb = sys.exc_info()
         distillery.browser.close()
         raise t, v, tb
@@ -206,7 +209,7 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
 
-    D, L, F, X = 1, 2, 3, 100
+    D, L, F, X = 1, 2, 5, 102
 
     dicts.create_and_save_dicts(D, L, F, X)
     encode(tweet_file, D, L, F, X)

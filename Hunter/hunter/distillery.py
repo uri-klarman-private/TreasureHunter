@@ -2,7 +2,6 @@ from datetime import datetime
 from random import Random
 
 from selenium.common.exceptions import TimeoutException
-from hunter.dictionary.combinations_provider import SEED
 
 
 __author__ = 'uriklarman'
@@ -60,9 +59,8 @@ class Distillery:
                 uncut_essence.append(word)
                 keywords_set.add(word)
 
-        # # sorting and then shuffling, in order to keep consistency
-        # uncut_essence.sort()
-        # rand = Random(SEED)
-        # rand.shuffle(uncut_essence)
+        # shuffling according to link
+        rand = Random(link)
+        rand.shuffle(uncut_essence)
 
         return uncut_essence[:self.essence_len], uncut_essence
