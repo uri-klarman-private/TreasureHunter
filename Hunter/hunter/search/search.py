@@ -11,6 +11,7 @@ import urlparse
 from datetime import datetime,timedelta
 import requests
 from selenium import webdriver
+from hunter.dictionary.dictionaries import resources_path
 
 
 time_between_searches = 3
@@ -112,7 +113,7 @@ class Search:
                 if links_list:
                     break
                 else:
-                    print 'No links.txt were found in this try. going to retry...'
+                    print 'No links were found in this try. going to retry...'
             except Exception as inst:
                 print traceback.format_exc()
                 print 'Search failed... going to retry...'

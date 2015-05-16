@@ -5,7 +5,7 @@ import traceback
 from search.search import Search
 import hunter.dictionary.dictionaries as dicts
 
-from stats.words_stats import WordsStats
+from stats.words_stats import WordsStats, load_stats
 from distillery import Distillery
 
 
@@ -205,11 +205,35 @@ def encode(tweet_file, D, L, F, X, dict_first_word_i=0, endword_index=False):
 #
 #     return data
 
+def print_stats(stats_filename):
+    run_stats = load_stats(stats_filename)
+    W = run_stats.D +run_stats.L +run_stats.F
+
+    steps_of_change = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] != run_stats.encoding_flow[i+1][0]]
+
+    steps_of_success = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] < run_stats.encoding_flow[i+1][0]]
+    steps_of_success_full = [x for x in steps_of_success if x[4] == W]
+
+    steps_of_backtrace = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] > run_stats.encoding_flow[i+1][0]]
+    steps_of_backtrace_full = [x for x in steps_of_backtrace if x[4] == W]
+
+    backtrace_success_ratio = float(len(steps_of_backtrace)) / len(steps_of_success)
+    backtrace_success_ratio_full =  float(len(steps_of_backtrace_full)) / len(steps_of_success_full)
+
+    uncut_essences = [x[7] for x in run_stats.encoding_flow]
+
+    steps_with_potential_to_succeed = [x for x in run_stats.encoding_flow if x[4] == x[6]]
+    potential_ratio = float(len(steps_with_potential_to_succeed)) / len(run_stats.encoding_flow)
+
+    print run_stats
 
 if __name__ == '__main__':
     tweet_file = 'tweet_1.txt'
 
-    D, L, F, X = 1, 2, 3, 100
+    D, L, F, X = 1, 2, 2, 89
 
-    dicts.create_and_save_dicts(D, L, F, X)
+    dicts.create_and_save_dicts(D, L, F, X, dict_first_word_i=1)
     encode(tweet_file, D, L, F, X)
+
+    # stats_filename = 'stats_1_2_2_89_0_tweet_1.txt_2015-05-15 14:31:29.116343.pkl'
+    # print_stats(stats_filename)

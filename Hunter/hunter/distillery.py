@@ -1,5 +1,6 @@
 from datetime import datetime
 from random import Random
+import os
 
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
@@ -32,8 +33,12 @@ class Distillery:
     def start_browser(self):
         self.last_browser_restart_time = datetime.now()
 
+        prefs = {}
+        prefs['download.default_directory'] = os.devnull
+        prefs['profile.default_content_settings.images'] = 2
+        prefs['download.prompt_for_download'] = False
         chrome_options = Options()
-        chrome_options.add_experimental_option( "prefs", {'profile.default_content_settings.images': 2,"download.prompt_for_download": False})
+        chrome_options.add_experimental_option( "prefs", prefs)
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
 
         # chrome_profile = webdriver.ChromeOptions()
