@@ -33,8 +33,8 @@ def create_pseudo_random_combinations(values, tuple_size, result_limit=False, av
                 combinations.append(combo)
                 combinations_set.add(combo)
         return combinations
-    else:
 
+    else:
         combinations = [x for x in itertools.product(values, repeat=tuple_size)]
         rand.shuffle(combinations)
         return combinations[:result_limit]
