@@ -1,10 +1,12 @@
+from itertools import combinations
 import re
 import cPickle as pickle
 import itertools
 import traceback
 from os import path
+import math
 
-from hunter.dictionary.combinations_provider import create_pseudo_random_combinations, create_ordered_combinations
+from hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
 
 
 __author__ = 'uriklarman'
@@ -22,26 +24,49 @@ links_dict_path = test_case_path + 'links_dict.pkl'
 last_english_line = 844587
 
 
-def create_dictionaries(D, L, F, X, start):
-    keywords_dict = create_keywords_dict(start, X)
-    if X > 83:
-        english_dict = create_english_dict(X, keywords_dict)
+class Dicts:
+    def __init__(self, keywords_dict, english_dict, links_dict):
+        self.keywords = keywords_dict
+        self.english = english_dict
+        self.links = links_dict
+
+
+class Config:
+    def __init__(self, d, l, f, x, first_keyword_i=0):
+        self.d = d
+        self.l = l
+        self.f = f
+        self.x = x
+        self.first_keyword_i = first_keyword_i
+
+        self.w = d + l + f
+        self.essence_len = int(math.pow(x, float(f) / self.w))
+
+    def params_tuple(self):
+        return self.d, self.l, self.f, self.x
+
+
+def create_dictionaries(config):
+    keywords_dict = create_keywords_dict(config)
+    if config.x > 83:
+        english_dict = create_english_dict(config, keywords_dict)
     else:
-        english_dict = create_english_dict(X, keywords_dict, keywords_per_word=4)
+        english_dict = create_english_dict(config, keywords_dict, keywords_per_word=4)
 
-    links_dict = create_links_dictionary(D, L, F, X, keywords_dict)
+    links_dict = create_links_dictionary(config, keywords_dict)
 
-    return keywords_dict, english_dict, links_dict
+    dicts = Dicts(keywords_dict, english_dict, links_dict)
+    return dicts
 
 
-def create_keywords_dict(start, X):
-    stop = start + X
+def create_keywords_dict(config):
+    stop = config.first_keyword_i + config.x
     keywords_dict = {}
     with open(keywords_path) as file:
         next_word_i = 0
         regex = re.compile('[^a-zA-Z]')
         for index, line in enumerate(file):
-            if index < start or index >= stop:
+            if index < config.first_keyword_i or index >= stop:
                 continue
             if '#' in line:
                 stop += 1
@@ -62,8 +87,8 @@ def create_keywords_dict(start, X):
     return keywords_dict
 
 
-def create_english_dict(X, keywords_dict, keywords_per_word=3):
-    combinations = create_ordered_combinations(range(X), keywords_per_word)
+def create_english_dict(config, keywords_dict, keywords_per_word=3):
+    combinations = create_ordered_combinations(range(config.x), keywords_per_word)
 
     english_dict = {}
     with open(english_words_path) as f:
@@ -77,7 +102,8 @@ def create_english_dict(X, keywords_dict, keywords_per_word=3):
             english_dict[word] = keywords_combination
             english_dict[keywords_combination] = word
             if line_number % 100000 == 0:
-                print 'going over ', english_words_path, ' currently at: ', line_number, ' different_words_index: ', different_words_index
+                print 'going over %s currently at: %s different_words_index: %s' %\
+                      (english_words_path, line_number, different_words_index)
             if line_number >= last_english_line:
                 break
             different_words_index += 1
@@ -85,128 +111,100 @@ def create_english_dict(X, keywords_dict, keywords_per_word=3):
     return english_dict
 
 
-def create_links_dictionary(D, L, F, X, keywords_dict):
-    link_combinations = create_pseudo_random_combinations(range(X), L, result_limit=100000, avoid_all_combinations=True)
+def create_links_dictionary(config, keywords_dict):
+    link_combinations = pseudo_random_combinations(range(config.x), config.l, 100000, avoid_all_combinations=True)
     links_dict = {}
-    with open(links_path % (D, L, F, X)) as f:
-        for line, combination in itertools.izip(f,link_combinations):
+    with open(links_path % config.params_tuple()) as f:
+        combination_i = 0
+        for line in f:
             link = line.strip()
-            keywords_combination = tuple(keywords_dict[index] for index in combination)
+            while link_combinations[combination_i][0] == link_combinations[combination_i][1]:
+                combination_i += 1
+            keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
             links_dict[link] = keywords_combination
             links_dict[keywords_combination] = link
     return links_dict
 
 
-def add_link_to_links_file(link_str, keywords_dict, D, L, F, X):
-    with open(links_path % (D, L, F, X), 'a') as f:
+def add_link_to_links_file(link_str, dicts, config):
+    with open(links_path % config.params_tuple(), 'a') as f:
         f.write("\n" + link_str)
-    links_dict = create_links_dictionary(D, L, F, X, keywords_dict)
-    save_links_dict(links_dict, D, L, F, X)
-    return links_dict
+    links_dict = create_links_dictionary(config, dicts.keywords)
+    save_links_dict(links_dict, config)
+    dicts.links = links_dict
+    return dicts
 
 
-def save_dictionaries(keywords_dict, english_dict, links_dict, D, L, F, X):
-    with open(keywords_dict_path % (D, L, F, X), 'w') as f:
-        pickle.dump(keywords_dict, f)
-    with open(english_dict_path % (D, L, F, X), 'w') as f:
-        pickle.dump(english_dict, f)
-    save_links_dict(links_dict, D, L, F, X)
+def save_dictionaries(dicts, config):
+    with open(keywords_dict_path % config.params_tuple(), 'w') as f:
+        pickle.dump(dicts.keywords, f)
+    with open(english_dict_path % config.params_tuple(), 'w') as f:
+        pickle.dump(dicts.english, f)
+    save_links_dict(dicts.links, config)
 
 
-def save_links_dict(links_dict, D, L, F, X):
-    with open(links_dict_path % (D, L, F, X), 'w') as f:
+def save_links_dict(links_dict, config):
+    with open(links_dict_path % config.params_tuple(), 'w') as f:
         pickle.dump(links_dict, f)
 
 
-def load_dictionaries(D, L, F, X):
+def load_dictionaries(config):
     while True:
         try:
-            with open(keywords_dict_path % (D, L, F, X), 'r') as f:
+            with open(keywords_dict_path % config.params_tuple(), 'r') as f:
                 keywords_dict = pickle.load(f)
-            with open(english_dict_path % (D, L, F, X), 'r') as f:
+            with open(english_dict_path % config.params_tuple(), 'r') as f:
                 english_dict = pickle.load(f)
-            with open(links_dict_path % (D, L, F, X), 'r') as f:
+            with open(links_dict_path % config.params_tuple(), 'r') as f:
                 links_dict = pickle.load(f)
             break
         except Exception as inst:
             print traceback.format_exc()
+    dicts = Dicts(keywords_dict, english_dict, links_dict)
+    return dicts
 
-    return keywords_dict, english_dict, links_dict
 
-
-def create_and_save_dicts(D, L, F, X, dict_first_word_i=0):
-    keywords_dict, english_dict, links_dict = create_dictionaries(D, L, F, X, dict_first_word_i)
-    print 'len of english keywords / 2 : ', len(english_dict) / 2
+def create_and_save_dicts(config):
+    dicts = create_dictionaries(config)
+    print 'len of english keywords / 2 : ', len(dicts.english) / 2
     print 'creating dictionaries Done'
-    save_dictionaries(keywords_dict, english_dict, links_dict, D, L, F, X)
+    save_dictionaries(dicts, config)
     print 'saving dictionaries Done'
 
-    return keywords_dict, english_dict, links_dict
+    return dicts
 
 
-def translate_indexes_to_F_keywords(indexes, keywords_dict, essence_len, F):
+def indexes_to_f_keywords(indexes, keywords_dict, config):
     keywords_len = len(keywords_dict) / 2
-    sum = 0
+    total = 0
     for index in indexes:
-        sum *= essence_len
-        sum += index
+        total *= config.essence_len
+        total += index
 
     words = []
-    for i in range(F):
-        val = sum % keywords_len
+    for i in range(config.f):
+        val = total % keywords_len
         words.append(keywords_dict[int(val)])
-        sum //= keywords_len
+        total //= keywords_len
 
     return words
 
 
-def translate_5_keywords_to_indexes(five_words, num_of_words, keywords_dict, keywords_dict_len, essence_len):
-    sum = 0
-    for word in reversed(five_words):
-        sum *= keywords_dict_len
-        sum += keywords_dict[word]
-
-    reversed_deltas = []
-    for i in range(num_of_words):
-        reversed_deltas.append(int(sum % essence_len))
-        sum //= essence_len
-
-    return list(reversed(reversed_deltas))
+# def translate_5_keywords_to_indexes(five_words, num_of_words, keywords_dict, keywords_dict_len, essence_len):
+#     sum = 0
+#     for word in reversed(five_words):
+#         sum *= keywords_dict_len
+#         sum += keywords_dict[word]
+#
+#     reversed_deltas = []
+#     for i in range(num_of_words):
+#         reversed_deltas.append(int(sum % essence_len))
+#         sum //= essence_len
+#
+#     return list(reversed(reversed_deltas))
 
 
 if __name__ == '__main__':
-    # D, L, F, X = 1,3,3, 94
-    D, L, F, X = 1,3,4, 64
-
-    create_and_save_dicts(D, L, F, X)
-    keywords_dict, english_dict, links_dict = load_dictionaries(D, L, F, X)
+    new_config = Config(1, 2, 3, 100)
+    create_and_save_dicts(new_config)
     print 'done'
-
-    # with open('resources/written_keywords.num') as file:
-    #     words = []
-    #     regex = re.compile('[^a-zA-Z]')
-    #     for index, line in enumerate(file):
-    #         word = regex.sub('', line.split()[1]).lower()
-    #         words.append(word)
-    #
-    # words_set = set()
-    #
-    # unique_list = []
-    # for word in words:
-    #     if word not in words_set:
-    #         words_set.add(word)
-    #         unique_list.append(word)
-    # with open('resources/written_keywords_set.num', 'w') as file:
-    #     for item in unique_list:
-    #         file.write("%s\n" % item)
-    #
-    # word_count = read_word_count()
-    # sorted_word_count = sorted(word_count.items(), key=operator.itemgetter(1), reverse=True)
-    # for word in sorted_word_count:
-    #     print word
-    #
-    #
-    #
-    #
-    #
-    # main(1500, 100)

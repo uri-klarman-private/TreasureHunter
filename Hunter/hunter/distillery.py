@@ -15,7 +15,7 @@ __author__ = 'uriklarman'
 
 class Distillery:
 
-    def __init__(self, essence_len, keywords_dict, page_load_timeout=6):
+    def __init__(self, essence_len, keywords_dict, page_load_timeout=4):
         self.essence_len = essence_len
         self.regex = re.compile('[^a-zA-Z]')
         self.keywords_dict = keywords_dict
