@@ -191,7 +191,7 @@ def find_words_from_lda_model():
             # good_words_in_topic = [word for word in topic if word in good_words]
             logging.info('len(good_words_in_topic): %s', len(good_words_in_topic))
             if len(good_words_in_topic) >= 5:
-                dict_word_sets.append([i, good_words_in_topic[:10]])
+                dict_word_sets.append([i, good_words_in_topic[:5]])
                 topics_classification[i] = good
                 for tuple in good_words_in_topic:
                     word = tuple[1]
@@ -215,7 +215,7 @@ def extract_words_from_word_sets():
 
 if __name__ == '__main__':
 
-    # create_lda_model()
+    create_lda_model()
 
     # with open('./resources/LDA_result/topic_words.pkl') as f:
     #     topic_dict_words = f.read().splitlines()
