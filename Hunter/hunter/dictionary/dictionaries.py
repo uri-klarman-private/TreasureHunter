@@ -5,6 +5,7 @@ import itertools
 import traceback
 from os import path
 import math
+from random import shuffle, Random
 
 from hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
 
@@ -32,12 +33,16 @@ class Dicts:
 
 
 class Config:
-    def __init__(self, d, l, f, x, first_keyword_i=0):
+    def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0):
         self.d = d
         self.l = l
         self.f = f
         self.x = x
-        self.first_keyword_i = first_keyword_i
+        self.shuffle_keywords_seed = shuffle_keywords_seed
+        if shuffle_stop < x:
+            self.shuffle_stop = x
+        else:
+            self.shuffle_stop = shuffle_stop
 
         self.w = d + l + f
         self.essence_len = int(math.pow(x, float(f) / self.w))
@@ -60,28 +65,29 @@ def create_dictionaries(config):
 
 
 def create_keywords_dict(config):
-    stop = config.first_keyword_i + config.x
-    keywords_dict = {}
+    keywords = []
     with open(keywords_path) as file:
-        next_word_i = 0
         regex = re.compile('[^a-zA-Z]')
         for index, line in enumerate(file):
-            if index < config.first_keyword_i or index >= stop:
-                continue
             if '#' in line:
-                stop += 1
                 continue
             word = regex.sub('', line)
-            if word in keywords_dict:
+            if word in keywords:
                 print 'word found in dict! ', word
-                stop += 1
                 continue
             if len(word) <= 2:
-                stop += 1
                 continue
-            keywords_dict[word] = next_word_i
-            keywords_dict[next_word_i] = word
-            next_word_i += 1
+            keywords.append(word)
+    if config.shuffle_keywords_seed:
+        print keywords
+        keywords = keywords[:config.shuffle_stop]
+        rand = Random(config.shuffle_keywords_seed)
+        rand.shuffle(keywords)
+        print keywords
+    keywords_dict = {}
+    for i in range(config.x):
+        keywords_dict[i] = keywords[i]
+        keywords_dict[keywords[i]] = i
 
     print 'keywords_dict size is: ', len(keywords_dict)
     return keywords_dict
@@ -123,6 +129,7 @@ def create_links_dictionary(config, keywords_dict):
             keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
             links_dict[link] = keywords_combination
             links_dict[keywords_combination] = link
+            combination_i += 1
     return links_dict
 
 

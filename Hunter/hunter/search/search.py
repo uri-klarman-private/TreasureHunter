@@ -96,7 +96,7 @@ class Search:
 
     def new_search(self, words_list):
         search_phrase = ' '.join(set(['"' + word + '"' for word in words_list]))
-        search_phrase += ' -"corpus" -"dictionary" -"glossary" -"lexicon" -"ISSUU" -"archive"'
+        search_phrase += ' -"corpus" -"dictionary" -"glossary" -"lexicon" -"ISSUU" -"archive" -"pdf"'
         # Build the request URL
         query_words_str = urllib.quote_plus(search_phrase)
         self.wait_till_safe()

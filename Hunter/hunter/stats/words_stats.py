@@ -13,14 +13,14 @@ class WordsStats:
         self.collected_words = collected_words
         self.encoding_flow = []
 
-        self.filename = 'stats_%d_%d_%d_%d_%d_%s_%s.pkl'%(config.d, config.l, config.f, config.x, config.first_keyword_i, tweet_file, str(datetime.now()))
+        self.filename = 'stats_%d_%d_%d_%d_%d_%s_%s.pkl'%(config.d, config.l, config.f, config.x, config.shuffle_keywords_seed, tweet_file, str(datetime.now()))
         print 'stats file name is: ', self.filename
 
-    def update(self, link_i, words, threshold, essence, uncut_essence):
-        self.update_encoding_flow(link_i, words, threshold, essence, uncut_essence)
+    def update(self, link_i, link, words, threshold, essence, uncut_essence):
+        self.update_encoding_flow(link_i, link, words, threshold, essence, uncut_essence)
         self.save_stats()
 
-    def update_encoding_flow(self, link_i, words, threshold, essence, uncut_essence):
+    def update_encoding_flow(self, link_i, link, words, threshold, essence, uncut_essence):
         words_set = set(words)
         essence_set = set(essence)
         uncut_essence_set = set(uncut_essence)
@@ -29,8 +29,16 @@ class WordsStats:
         num_words_in_essence = len(words_set.intersection(essence_set))
         num_words_in_uncut_essence = len(words_set.intersection(uncut_essence_set))
 
-        encoding_flow_item = [len(self.collected_words)-1, link_i, link_found, len(words_set), num_words_in_essence,
-                              num_words_in_uncut_essence, len(uncut_essence), threshold, words]
+        steps = len(self.collected_words)-1
+        forward_steps = len([t for t in self.collected_words if t[0][0] != t[0][1]])
+        sidesteps = steps - forward_steps
+        if words[0] == words[1]:
+            step_kind = "sidestep"
+        else:
+            step_kind = "forward"
+
+        encoding_flow_item = [steps, link_i, link_found, step_kind, len(words_set), num_words_in_essence,
+                              num_words_in_uncut_essence, len(uncut_essence), forward_steps, sidesteps, words, link]
         print 'encoding_flow_item: %s' % encoding_flow_item
 
         self.encoding_flow.append(encoding_flow_item)

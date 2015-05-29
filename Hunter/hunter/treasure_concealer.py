@@ -11,7 +11,7 @@ from distillery import Distillery
 
 __author__ = 'uriklarman'
 
-sidestep_threshold = 600
+sidestep_threshold = 100
 
 
 def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
@@ -32,6 +32,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                     break
                 except:
                     print 'Distillery failed for the ', i, ' time. restarting browser...'
+                    link = "http://google.com"
                     distillery.restart_browser()
                     essence, uncut_essence = [],[]
 
@@ -40,7 +41,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
             # found_words = [x for x in words_set if x in essence]
             # not_found_words = [x for x in words_set if x not in essence]
 
-            stats.update(link_i, words, threshold, essence, uncut_essence)
+            stats.update(link_i, link, words, threshold, essence, uncut_essence)
 
             if link_found or link_i >= threshold:
                 break
@@ -130,7 +131,8 @@ if __name__ == '__main__':
     # print_stats(stats_filename)
 
     tweet_file = 'tweet_1.txt'
-    config = dictionaries.Config(1, 2, 2, 56)
+    # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 400)
 
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
