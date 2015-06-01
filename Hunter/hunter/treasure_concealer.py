@@ -11,7 +11,7 @@ from distillery import Distillery
 
 __author__ = 'uriklarman'
 
-sidestep_threshold = 300
+sidestep_threshold = 600
 tweets_path = dictionaries.resources_path + 'tweets/'
 
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
     tweet_file = 'tweet_CO_1.txt'
     # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
-    config = dictionaries.Config(1, 2, 2, 89, 10, 400)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
 
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
