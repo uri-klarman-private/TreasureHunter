@@ -4,7 +4,7 @@ from hunter.dictionary.dictionaries import resources_path
 __author__ = 'uriklarman'
 import cPickle as pickle
 
-stats_dir_path = resources_path + 'stats_pkl/'
+stats_dir_path = resources_path + 'stats/'
 
 class WordsStats:
     def __init__(self, config, tweet_file, collected_words):
