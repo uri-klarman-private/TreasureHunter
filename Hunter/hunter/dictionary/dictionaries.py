@@ -12,7 +12,7 @@ from hunter.dictionary.combinations_provider import pseudo_random_combinations, 
 
 __author__ = 'uriklarman'
 keywords_learner_resources_path = path.dirname(__file__) + '/../../../KeywordsLearner/keywordslearner/resources/'
-keywords_path = keywords_learner_resources_path + 'LDA_result/topic_words.pkl'
+keywords_path = keywords_learner_resources_path + 'LDA_result/topic_words'
 english_words_path = keywords_learner_resources_path + 'LDA_input/written.num'
 
 resources_path = path.dirname(__file__) + '/../resources/'

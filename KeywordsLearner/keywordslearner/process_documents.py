@@ -101,7 +101,7 @@ def create_lda_model():
         pickle.dump(dict_word_sets, f)
 
     topics_words = extract_words_from_word_sets()
-    with open('./resources/LDA_result/topic_words.pkl', mode='wt', encoding='utf-8') as f:
+    with open('./resources/LDA_result/topic_words', mode='wt', encoding='utf-8') as f:
         f.write('\n'.join(topics_words))
 
 
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
     create_lda_model()
 
-    # with open('./resources/LDA_result/topic_words.pkl') as f:
+    # with open('./resources/LDA_result/topic_words') as f:
     #     topic_dict_words = f.read().splitlines()
     # with open('./resources/LDA_processing/dict_word_sets.pkl', mode='rb') as f:
     #     dict_word_sets = pickle.load(f)
