@@ -1,9 +1,9 @@
 import sys
 import traceback
 from time import sleep
+from hunter.dictionary import dictionaries
 
 from search.search import Search
-import hunter.dictionary.dictionaries as dictionaries
 
 from stats.words_stats import WordsStats
 from distillery import Distillery
@@ -11,7 +11,8 @@ from distillery import Distillery
 
 __author__ = 'uriklarman'
 
-sidestep_threshold = 100
+sidestep_threshold = 300
+tweets_path = dictionaries.resources_path + 'tweets/'
 
 
 def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
@@ -98,7 +99,7 @@ def conceal(tweet_file, config, endword_index=False):
     print 'Essence len = ', config.essence_len
     distillery = Distillery(config.essence_len, dicts.keywords)
     search_engine = Search()
-    raw_data_words = open(dictionaries.resources_path + tweet_file).read().split()
+    raw_data_words = open(tweets_path + tweet_file).read().split()
     data_words = [keyword for word in raw_data_words for keyword in dicts.english[word.lower()]]
 
     if endword_index:
@@ -130,7 +131,10 @@ if __name__ == '__main__':
     # stats_filename = 'stats_1_2_3_100_0_tweet_1.txt_2015-05-21 00:26:58.858189.pkl'
     # print_stats(stats_filename)
 
-    tweet_file = 'tweet_1.txt'
+    import sys
+    print sys.path
+
+    tweet_file = 'tweet_CO_1.txt'
     # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
     config = dictionaries.Config(1, 2, 2, 89, 10, 400)
 

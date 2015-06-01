@@ -24,10 +24,9 @@ class WordsStats:
         words_set = set(words)
         essence_set = set(essence)
         uncut_essence_set = set(uncut_essence)
-
         link_found = words_set.issubset(essence_set)
-        num_words_in_essence = len(words_set.intersection(essence_set))
-        num_words_in_uncut_essence = len(words_set.intersection(uncut_essence_set))
+        words_in_essence = words_set.intersection(essence_set)
+        words_in_uncut_essence = words_set.intersection(uncut_essence_set)
 
         steps = len(self.collected_words)-1
         forward_steps = len([t for t in self.collected_words if t[0][0] != t[0][1]])
@@ -37,8 +36,9 @@ class WordsStats:
         else:
             step_kind = "forward"
 
-        encoding_flow_item = [steps, link_i, link_found, step_kind, len(words_set), num_words_in_essence,
-                              num_words_in_uncut_essence, len(uncut_essence), forward_steps, sidesteps, words, link]
+        encoding_flow_item = [steps, link_i, link_found, step_kind, len(words_set), len(words_in_essence),
+                              len(words_in_uncut_essence), len(uncut_essence), forward_steps, sidesteps, words,
+                              words_in_essence, words_in_uncut_essence, link, str(datetime.now())]
         print 'encoding_flow_item: %s' % encoding_flow_item
 
         self.encoding_flow.append(encoding_flow_item)
