@@ -7,7 +7,7 @@ from os import path
 import math
 from random import shuffle, Random
 
-from hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
+from hunter.dictionary.combinations_provider import create_ordered_product, create_ordered_combinations
 
 
 __author__ = 'uriklarman'
@@ -30,6 +30,12 @@ class Dicts:
         self.keywords = keywords_dict
         self.english = english_dict
         self.links = links_dict
+
+
+class LinksDict:
+    def __init__(self, links_to_essences, combos_to_links):
+        self.links_to_essences = links_to_essences
+        self.combos_to_links = combos_to_links
 
 
 class Config:
@@ -58,7 +64,7 @@ def create_dictionaries(config):
     else:
         english_dict = create_english_dict(config, keywords_dict, keywords_per_word=4)
 
-    links_dict = create_links_dictionary(config, keywords_dict)
+    links_dict = create_predefined_links_dictionary(config, keywords_dict)
 
     dicts = Dicts(keywords_dict, english_dict, links_dict)
     return dicts
@@ -94,7 +100,7 @@ def create_keywords_dict(config):
 
 
 def create_english_dict(config, keywords_dict, keywords_per_word=3):
-    combinations = create_ordered_combinations(range(config.x), keywords_per_word)
+    combinations = create_ordered_product(range(config.x), keywords_per_word)
 
     english_dict = {}
     with open(english_words_path) as f:
@@ -117,29 +123,48 @@ def create_english_dict(config, keywords_dict, keywords_per_word=3):
     return english_dict
 
 
-def create_links_dictionary(config, keywords_dict):
-    link_combinations = pseudo_random_combinations(range(config.x), config.l, 100000, avoid_all_combinations=True)
-    links_dict = {}
-    with open(links_path % config.params_tuple()) as f:
-        combination_i = 0
-        for line in f:
-            link = line.strip()
-            while link_combinations[combination_i][0] == link_combinations[combination_i][1]:
-                combination_i += 1
-            keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
-            links_dict[link] = keywords_combination
-            links_dict[keywords_combination] = link
-            combination_i += 1
-    return links_dict
+def create_predefined_links_dictionary(config, keywords_dict):
+    keywords = [keywords_dict[x] for x in range(config.x)]
+    num_of_links = len(keywords)**config.l
 
+    essences = create_ordered_combinations(keywords, config.l, config.essence_len)
+    links_to_essences = {}
+    for link_i in xrange(num_of_links):
+        links_to_essences[link_i] = essences[link_i]
+        links_to_essences[essences[link_i]] = link_i
 
-def add_link_to_links_file(link_str, dicts, config):
-    with open(links_path % config.params_tuple(), 'a') as f:
-        f.write("\n" + link_str)
-    links_dict = create_links_dictionary(config, dicts.keywords)
-    save_links_dict(links_dict, config)
-    dicts.links = links_dict
-    return dicts
+    keywords_combos = create_ordered_combinations(keywords, config.l, config.l)
+    combos_to_links = {}
+    for combo in keywords_combos:
+        containing_essences = [links_to_essences[e] for e in essences if combo.issubset(e)]
+        combos_to_links[combo] = set(containing_essences)
+
+    return LinksDict(links_to_essences, combos_to_links)
+
+#
+# def create_links_dictionary(config, keywords_dict):
+#     link_combinations = pseudo_random_combinations(range(config.x), config.l, 100000, avoid_all_combinations=True)
+#     links_dict = {}
+#     with open(links_path % config.params_tuple()) as f:
+#         combination_i = 0
+#         for line in f:
+#             link = line.strip()
+#             while link_combinations[combination_i][0] == link_combinations[combination_i][1]:
+#                 combination_i += 1
+#             keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
+#             links_dict[link] = keywords_combination
+#             links_dict[keywords_combination] = link
+#             combination_i += 1
+#     return links_dict
+#
+#
+# def add_link_to_links_file(link_str, dicts, config):
+#     with open(links_path % config.params_tuple(), 'a') as f:
+#         f.write("\n" + link_str)
+#     links_dict = create_links_dictionary(config, dicts.keywords)
+#     save_links_dict(links_dict, config)
+#     dicts.links = links_dict
+#     return dicts
 
 
 def save_dictionaries(dicts, config):

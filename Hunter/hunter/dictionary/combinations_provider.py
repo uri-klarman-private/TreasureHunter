@@ -41,11 +41,33 @@ def pseudo_random_combinations(values, tuple_size, result_limit=False, avoid_all
 
 
 # returns an iterable, which only allocate values when they are needed
-def create_ordered_combinations(values, tuple_size):
+def create_ordered_product(values, tuple_size):
     return itertools.product(values, repeat=tuple_size)
 
+
+def create_ordered_combinations(values, repeat, tuple_size):
+    print 'len(values): %s repeat: %s tuple size: %s' % (len(values), repeat, tuple_size)
+    if repeat > tuple_size:
+        raise Exception('repeat larger than tuple size!')
+    elif repeat == tuple_size:
+        return [frozenset(x) for x in itertools.combinations(values, r=tuple_size)]
+    else:
+        result_size = len(values)**repeat
+        print 'result_size is ', result_size
+        result = []
+        rand = Random()
+        rand.seed(SEED)
+        while len(result) < result_size:
+            for part_1 in itertools.combinations(values, r=repeat):
+                combo = frozenset()
+                while len(combo) != tuple_size:
+                    combo = frozenset(part_1 + tuple([rand.choice(values) for x in range(tuple_size-repeat)]))
+                result.append(combo)
+
+        return result[:result_size]
+
+
+
 if __name__ == '__main__':
-    a = pseudo_random_combinations(range(100),3,result_limit=100000,avoid_all_combinations=True)
-    b = pseudo_random_combinations(range(100),3,result_limit=100000,avoid_all_combinations=True)
-    print 'done!: ', len(a), a[:5]
-    print 'done!: ', len(b), b[:5]
+    a = create_ordered_combinations([1,2,3,4], 2, 3)
+    print 'done!: ', a
