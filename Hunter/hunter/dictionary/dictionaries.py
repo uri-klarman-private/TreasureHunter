@@ -6,8 +6,10 @@ import traceback
 from os import path
 import math
 from random import shuffle, Random
+from datetime import datetime
 
-from hunter.dictionary.combinations_provider import create_ordered_product, create_ordered_combinations
+from hunter.dictionary.combinations_provider import create_ordered_product, create_ordered_combinations, \
+    gen_subsets_special
 
 
 __author__ = 'uriklarman'
@@ -33,15 +35,17 @@ class Dicts:
 
 
 class LinksDict:
-    def __init__(self, links_to_essences, combos_to_links):
-        self.links_to_essences = links_to_essences
-        self.combos_to_links = combos_to_links
+    def __init__(self, link_essence_map, link_combo_map, keyword_to_containing_essences):
+        self.link_essence_map = link_essence_map
+        self.link_combo_map = link_combo_map
+        self.keyword_to_containing_essences = keyword_to_containing_essences
 
 
 class Config:
-    def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0):
+    def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0, real_l=4):
         self.d = d
         self.l = l
+        self.real_l = real_l
         self.f = f
         self.x = x
         self.shuffle_keywords_seed = shuffle_keywords_seed
@@ -125,21 +129,32 @@ def create_english_dict(config, keywords_dict, keywords_per_word=3):
 
 def create_predefined_links_dictionary(config, keywords_dict):
     keywords = [keywords_dict[x] for x in range(config.x)]
-    num_of_links = len(keywords)**config.l
+    num_of_links = len(keywords)**config.real_l
+    print 'num_links is: ', num_of_links
 
-    essences = create_ordered_combinations(keywords, config.l, config.essence_len)
-    links_to_essences = {}
-    for link_i in xrange(num_of_links):
-        links_to_essences[link_i] = essences[link_i]
-        links_to_essences[essences[link_i]] = link_i
+    links_i = xrange(num_of_links)
+    essences = gen_subsets_special(keywords, config.essence_len)
+    keywords_combos = create_ordered_product(keywords, config.w)
 
-    keywords_combos = create_ordered_combinations(keywords, config.l, config.l)
-    combos_to_links = {}
-    for combo in keywords_combos:
-        containing_essences = [links_to_essences[e] for e in essences if combo.issubset(e)]
-        combos_to_links[combo] = set(containing_essences)
+    link_essence_map = {}
+    link_combo_map = {}
+    keyword_to_containing_essences = {}
+    for keyword in keywords:
+        keyword_to_containing_essences[keyword] = []
 
-    return LinksDict(links_to_essences, combos_to_links)
+    for link_i, essence, combo in itertools.izip(links_i, essences, keywords_combos):
+        if link_i % 100000 == 0:
+            print 'time: %s current link_i: %s' % (datetime.now(), link_i)
+        link_essence_map[link_i] = essence
+        link_essence_map[essence] = link_i
+
+        link_combo_map[link_i] = combo
+        link_combo_map[combo] = link_i
+
+        for keyword in combo:
+            keyword_to_containing_essences[keyword].append(link_i)
+
+    return LinksDict(link_essence_map, link_combo_map, keyword_to_containing_essences)
 
 #
 # def create_links_dictionary(config, keywords_dict):
@@ -237,6 +252,6 @@ def indexes_to_f_keywords(indexes, keywords_dict, config):
 
 
 if __name__ == '__main__':
-    new_config = Config(1, 2, 3, 100)
+    new_config = Config(1, 2, 3, 100, real_l=4)
     create_and_save_dicts(new_config)
     print 'done'

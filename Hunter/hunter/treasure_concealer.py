@@ -1,6 +1,7 @@
 import sys
 import traceback
 from time import sleep
+import random
 from hunter.dictionary import dictionaries
 
 from search.search import Search
@@ -71,22 +72,11 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
 
 def conceal_step(data_words, words, search_engine, distillery, dicts, stats):
+    link_i = random.choice(dicts.links.combos_to_links[frozenset(words)])
+    essence = dicts.links.links_to_essences[link_i]
 
-    link_found, link, essence = find_link(words, search_engine, distillery, dicts, stats, sidestep_threshold)
+    next_words = [data_words.pop()]
 
-    if link_found:
-        next_words = [data_words.pop()]
-    else:
-        # save D-word for next attempt, and copy L1-word into D-word
-        next_words = [words[0]]
-        words[0] = words[1]
-
-        sidestep_found, link, essence = find_link(words, search_engine, distillery, dicts, stats)
-        if not sidestep_found:
-            print 'oh boy... No link was found for side stepping.'
-
-    if link not in dicts.links:
-        links_dict = dictionaries.add_link_to_links_file(link, dicts, config)
     next_words += dicts.links[link]
     next_words += dictionaries.indexes_to_f_keywords([essence.index(w) for w in words], dicts.keywords, config)
 
@@ -131,12 +121,12 @@ if __name__ == '__main__':
     # stats_filename = 'stats_1_2_3_100_0_tweet_1.txt_2015-05-21 00:26:58.858189.pkl'
     # print_stats(stats_filename)
 
-    import sys
-    print sys.path
 
-    tweet_file = 'tweet_CO_1.txt'
     # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dictionaries.create_and_save_dicts(config)
 
+    config = dictionaries.Config(1, 2, 3, 100, real_l=4)
     dictionaries.create_and_save_dicts(config)
-    conceal(tweet_file, config)
+    # tweet_file = 'tweet_CO_1.txt'
+    # conceal(tweet_file, config)
