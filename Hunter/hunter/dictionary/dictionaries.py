@@ -128,7 +128,7 @@ def create_english_dict(config, keywords_dict, keywords_per_word=3):
 
 
 def create_predefined_links_dictionary(config, keywords_dict):
-    keywords = [keywords_dict[x] for x in range(config.x)]
+    keywords = range(config.x)
     num_of_links = len(keywords)**config.real_l
     print 'num_links is: ', num_of_links
 
