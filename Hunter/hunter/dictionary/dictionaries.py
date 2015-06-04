@@ -7,6 +7,8 @@ from os import path
 import math
 from random import shuffle, Random
 from datetime import datetime
+# import shelve
+from pymongo import MongoClient
 
 from hunter.dictionary.combinations_provider import create_ordered_product, create_ordered_combinations, \
     gen_subsets_special
@@ -23,22 +25,27 @@ links_path = test_case_path + 'links.txt'
 keywords_dict_path = test_case_path + 'keywords_dict.pkl'
 english_dict_path = test_case_path + 'english_dict.pkl'
 links_dict_path = test_case_path + 'links_dict.pkl'
+link_essence_map_path = test_case_path + 'link_essence_map'
+link_combo_map_path = test_case_path + 'link_combo_map'
+keyword_to_containing_essences_path = test_case_path + 'keyword_to_containing_essences'
 
 last_english_line = 844587
 
 
 class Dicts:
-    def __init__(self, keywords_dict, english_dict, links_dict):
+    def __init__(self, keywords_dict, english_dict):
         self.keywords = keywords_dict
         self.english = english_dict
-        self.links = links_dict
+        self.links = {}
 
 
 class LinksDict:
-    def __init__(self, link_essence_map, link_combo_map, keyword_to_containing_essences):
-        self.link_essence_map = link_essence_map
-        self.link_combo_map = link_combo_map
-        self.keyword_to_containing_essences = keyword_to_containing_essences
+    def __init__(self):
+        self.client = MongoClient()
+        self.db = self.client.links_dict
+        self.link_to_essence = self.db.link_to_essence
+        self.link_combo_map = self.db.link_combo_map
+        self.keyword_to_essences = self.db.keyword_to_essences
 
 
 class Config:
@@ -68,9 +75,9 @@ def create_dictionaries(config):
     else:
         english_dict = create_english_dict(config, keywords_dict, keywords_per_word=4)
 
-    links_dict = create_predefined_links_dictionary(config, keywords_dict)
+    create_predefined_links_dictionary(config, keywords_dict)
 
-    dicts = Dicts(keywords_dict, english_dict, links_dict)
+    dicts = Dicts(keywords_dict, english_dict)
     return dicts
 
 
@@ -127,59 +134,58 @@ def create_english_dict(config, keywords_dict, keywords_per_word=3):
     return english_dict
 
 
-def create_predefined_links_dictionary(config, keywords_dict):
-    keywords = range(config.x)
-    num_of_links = len(keywords)**config.real_l
-    print 'num_links is: ', num_of_links
-
-    links_i = xrange(num_of_links)
-    essences = gen_subsets_special(keywords, config.essence_len)
-    keywords_combos = create_ordered_product(keywords, config.w)
-
-    link_essence_map = {}
-    link_combo_map = {}
-    keyword_to_containing_essences = {}
-    for keyword in keywords:
-        keyword_to_containing_essences[keyword] = []
-
-    for link_i, essence, combo in itertools.izip(links_i, essences, keywords_combos):
-        if link_i % 100000 == 0:
-            print 'time: %s current link_i: %s' % (datetime.now(), link_i)
-        link_essence_map[link_i] = essence
-        link_essence_map[essence] = link_i
-
-        link_combo_map[link_i] = combo
-        link_combo_map[combo] = link_i
-
-        for keyword in combo:
-            keyword_to_containing_essences[keyword].append(link_i)
-
-    return LinksDict(link_essence_map, link_combo_map, keyword_to_containing_essences)
-
+# def create_predefined_links_dictionary(config, keywords_dict):
+#     keywords_i = range(config.x)
+#     num_of_links = len(keywords_i)**config.real_l
+#     print 'num_links is: ', num_of_links
 #
-# def create_links_dictionary(config, keywords_dict):
-#     link_combinations = pseudo_random_combinations(range(config.x), config.l, 100000, avoid_all_combinations=True)
-#     links_dict = {}
-#     with open(links_path % config.params_tuple()) as f:
-#         combination_i = 0
-#         for line in f:
-#             link = line.strip()
-#             while link_combinations[combination_i][0] == link_combinations[combination_i][1]:
-#                 combination_i += 1
-#             keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
-#             links_dict[link] = keywords_combination
-#             links_dict[keywords_combination] = link
-#             combination_i += 1
-#     return links_dict
+#     links_i = xrange(num_of_links)
+#     essences = gen_subsets_special(keywords_i, config.essence_len)
+#     keywords_combos = create_ordered_product(keywords_i, config.w)
 #
+#     client = MongoClient()
+#     db = client.links_dict
+#     link_to_essence = db.link_to_essence
+#     link_combo_map = db.link_combo_map
+#     keyword_to_essences = db.keyword_to_essences
 #
-# def add_link_to_links_file(link_str, dicts, config):
-#     with open(links_path % config.params_tuple(), 'a') as f:
-#         f.write("\n" + link_str)
-#     links_dict = create_links_dictionary(config, dicts.keywords)
-#     save_links_dict(links_dict, config)
-#     dicts.links = links_dict
-#     return dicts
+#     # collection.insert({"aba":1, "ima":2})
+#     # db.test_collection.find_one({"aba":2})
+#     # db.drop_collection('test_collection')
+#     # db.collection_names()
+#
+#     # db.drop_collection('keyword_to_essences')
+#     # db.drop_collection('link_combo_map')
+#     # db.drop_collection('link_to_essence')
+#     # db.collection_names()
+#
+#     link_to_essence_list = []
+#     link_combo_map_list = []
+#     keyword_to_essences_list = []
+#
+#     for link_i, essence, combo in itertools.izip(links_i, essences, keywords_combos):
+#         if link_i % 1000000 == 0 and link_to_essence_list:
+#             print 'start time: %s current link_i: %s' % (datetime.now(), link_i)
+#             link_to_essence.insert(link_to_essence_list)
+#             link_combo_map.insert(link_combo_map_list)
+#             keyword_to_essences.insert(keyword_to_essences_list)
+#             link_to_essence_list = []
+#             link_combo_map_list = []
+#             keyword_to_essences_list = []
+#             print 'done time: %s current link_i: %s' % (datetime.now(), link_i)
+#
+#         link_to_essence_list.append({'_id': link_i, 'essence': essence})
+#         link_combo_map_list.append({'_id': link_i, 'value': combo})
+#         link_combo_map_list.append({'_id': str(combo), 'value': link_i})
+#
+#         for keyword in combo:
+#             keyword_to_essences_list.append({'link': link_i, 'keyword': keyword})
+#
+#     link_to_essence.insert(link_to_essence_list)
+#     link_combo_map.insert(link_combo_map_list)
+#     keyword_to_essences.insert(keyword_to_essences_list)
+#
+#     print 'Done creating links mapping!'
 
 
 def save_dictionaries(dicts, config):
@@ -187,7 +193,7 @@ def save_dictionaries(dicts, config):
         pickle.dump(dicts.keywords, f)
     with open(english_dict_path % config.params_tuple(), 'w') as f:
         pickle.dump(dicts.english, f)
-    save_links_dict(dicts.links, config)
+    # save_links_dict(dicts.links, config)
 
 
 def save_links_dict(links_dict, config):
@@ -196,14 +202,13 @@ def save_links_dict(links_dict, config):
 
 
 def load_dictionaries(config):
+    links_dict = LinksDict()
     while True:
         try:
             with open(keywords_dict_path % config.params_tuple(), 'r') as f:
                 keywords_dict = pickle.load(f)
             with open(english_dict_path % config.params_tuple(), 'r') as f:
                 english_dict = pickle.load(f)
-            with open(links_dict_path % config.params_tuple(), 'r') as f:
-                links_dict = pickle.load(f)
             break
         except Exception as inst:
             print traceback.format_exc()

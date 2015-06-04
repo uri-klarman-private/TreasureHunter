@@ -91,7 +91,7 @@ def gen_subsets_special(full_set, M):
             takefrom = allix - ix
             ix |= destructive_sample(M - len(ix))
         assert len(ix) == M
-        yield frozenset(elements[i] for i in ix)
+        yield tuple(elements[i] for i in ix)
 
 
 if __name__ == '__main__':

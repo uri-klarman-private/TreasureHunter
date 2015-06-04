@@ -2,10 +2,9 @@ import sys
 import traceback
 from time import sleep
 import random
+
 from hunter.dictionary import dictionaries
-
 from search.search import Search
-
 from stats.words_stats import WordsStats
 from distillery import Distillery
 
@@ -71,7 +70,8 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
     return link_found, link, essence
 
 
-def conceal_step(data_words, words, search_engine, distillery, dicts, stats):
+def conceal_step(data_words, words, dicts):
+    find_link()
     link_i = random.choice(dicts.links.combos_to_links[frozenset(words)])
     essence = dicts.links.links_to_essences[link_i]
 
@@ -87,8 +87,8 @@ def conceal(tweet_file, config, endword_index=False):
     dicts = dictionaries.load_dictionaries(config)
     print 'keywords (x) = ', config.x
     print 'Essence len = ', config.essence_len
-    distillery = Distillery(config.essence_len, dicts.keywords)
-    search_engine = Search()
+    # distillery = Distillery(config.essence_len, dicts.keywords)
+    # search_engine = Search()
     raw_data_words = open(tweets_path + tweet_file).read().split()
     data_words = [keyword for word in raw_data_words for keyword in dicts.english[word.lower()]]
 
@@ -98,11 +98,11 @@ def conceal(tweet_file, config, endword_index=False):
         words = [dicts.keywords[config.x - 1]] * config.w
 
     collected_words = [(words, '')]
-    stats = WordsStats(config, tweet_file, collected_words)
+    # stats = WordsStats(config, tweet_file, collected_words)
 
     try:
         while True:
-            words, link = conceal_step(data_words, words, search_engine, distillery, dicts, stats)
+            words, link = conceal_step(data_words, words, dicts)
             collected_words.append((words, link))
             if not data_words:
                 break
@@ -110,7 +110,7 @@ def conceal(tweet_file, config, endword_index=False):
     except Exception:
         print(traceback.format_exc())
         t, v, tb = sys.exc_info()
-        distillery.browser.close()
+        # distillery.browser.close()
         raise t, v, tb
 
     print "collected words are: %s" % collected_words
@@ -127,6 +127,16 @@ if __name__ == '__main__':
     # dictionaries.create_and_save_dicts(config)
 
     config = dictionaries.Config(1, 2, 3, 100, real_l=4)
-    dictionaries.create_and_save_dicts(config)
-    # tweet_file = 'tweet_CO_1.txt'
-    # conceal(tweet_file, config)
+    # dictionaries.create_and_save_dicts(config)
+    tweet_file = 'tweet_CO_1.txt'
+    conceal(tweet_file, config)
+
+    # client = MongoClient()
+    # db = client.test_database
+    # collection = db.test_collection
+    # collection.insert({"aba":1, "ima":2})
+    # db.test_collection.find_one({"aba":2})
+    # db.drop_collection('test_collection')
+    # db.collection_names()
+
+    print 'Done'
