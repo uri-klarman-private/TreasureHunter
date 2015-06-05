@@ -41,63 +41,11 @@ def pseudo_random_combinations(values, tuple_size, result_limit=False, avoid_all
 
 
 # returns an iterable, which only allocate values when they are needed
-def create_ordered_product(values, tuple_size):
+def create_ordered_combinations(values, tuple_size):
     return itertools.product(values, repeat=tuple_size)
 
-
-def create_ordered_combinations(values, repeat, tuple_size, num_results):
-    print 'len(values) %s repeat %s tuple_size %s num_results %s' % (len(values), repeat, tuple_size, num_results)
-    if repeat > tuple_size:
-        raise Exception('repeat larger than tuple size!')
-    elif repeat == tuple_size:
-        return [frozenset(x) for x in itertools.combinations(values, r=tuple_size)]
-    else:
-        result = []
-        rand = Random()
-        rand.seed(SEED)
-        while len(result) < num_results:
-            for part_1 in itertools.combinations(values, r=repeat):
-                combo = frozenset()
-                while len(combo) != tuple_size:
-                    combo = frozenset(part_1 + tuple([rand.choice(values) for x in range(tuple_size-repeat)]))
-                result.append(combo)
-
-        return result[:num_results]
-
-
-def gen_subsets_special(full_set, M):
-
-    # generate randomish M-subsets of full_set, "far apart".
-    import random
-    from random import sample
-    random.seed(SEED)
-    elements = list(full_set)
-    allix = set(range(len(elements)))
-    takefrom = allix.copy()
-
-    def destructive_sample(n):
-        # Remove a random n-subset from takefrom, & return it.
-        s = set(sample(takefrom, n))
-        takefrom.difference_update(s)
-        return s
-
-    while True:
-        if len(takefrom) >= M:
-            # Get everything from takefrom.
-            ix = destructive_sample(M)
-        else:
-            # We need to take all of takefrom, and more.
-            ix = takefrom
-            takefrom = allix - ix
-            ix |= destructive_sample(M - len(ix))
-        assert len(ix) == M
-        yield tuple(elements[i] for i in ix)
-
-
 if __name__ == '__main__':
-    # a = create_ordered_combinations([1,2,3,4], 2, 3, 4**2)
-    # print 'done!: ', a
-
-    a = gen_subsets_special(range(100), 10)
-    for i in range():
-        print a.next()
+    a = pseudo_random_combinations(range(100),3,result_limit=100000,avoid_all_combinations=True)
+    b = pseudo_random_combinations(range(100),3,result_limit=100000,avoid_all_combinations=True)
+    print 'done!: ', len(a), a[:5]
+    print 'done!: ', len(b), b[:5]
