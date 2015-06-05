@@ -33,10 +33,10 @@ last_english_line = 844587
 
 
 class Dicts:
-    def __init__(self, keywords_dict, english_dict):
+    def __init__(self, keywords_dict, english_dict, links={}):
         self.keywords = keywords_dict
         self.english = english_dict
-        self.links = {}
+        self.links = links
 
 
 class LinksDict:
