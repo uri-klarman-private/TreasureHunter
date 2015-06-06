@@ -1,11 +1,12 @@
 import sys
 import traceback
 from time import sleep
+import os
 from hunter.dictionary import dictionaries
 
 from search.search import Search
 
-from stats.words_stats import WordsStats
+from stats.words_stats import WordsStats, print_stats, stats_dir_path
 from distillery import Distillery
 
 
@@ -128,15 +129,16 @@ def conceal(tweet_file, config, endword_index=False):
 
 
 if __name__ == '__main__':
-    # stats_filename = 'stats_1_2_3_100_0_tweet_1.txt_2015-05-21 00:26:58.858189.pkl'
-    # print_stats(stats_filename)
+    # all_files = os.listdir(stats_dir_path)[1:]
+    # for filename in all_files:
+    #     print_stats(filename)
 
-    import sys
-    print sys.path
+    best_file = 'stats_1_2_2_89_10_tweet_1.txt_2015-05-28 17:16:32.217772.pkl'
+    print_stats(best_file)
 
     tweet_file = 'tweet_CO_1.txt'
-    # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-
-    dictionaries.create_and_save_dicts(config)
-    conceal(tweet_file, config)
+    # # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    #
+    # dictionaries.create_and_save_dicts(config)
+    # conceal(tweet_file, config)
