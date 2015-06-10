@@ -20,6 +20,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
     links_list, next_url = links_list, next_url = search_engine.new_search(words)
     link_i = 0
+    link_found = False
     while link_i < threshold:
         for link in links_list:
 
@@ -101,7 +102,7 @@ def conceal(tweet_file, config, endword_index=False):
     distillery = Distillery(config.essence_len, dicts.keywords)
     search_engine = Search()
     raw_data_words = open(tweets_path + tweet_file).read().split()
-    data_words = [keyword for word in raw_data_words for keyword in dicts.english[word.lower()]]
+    data_words = [keyword for word in raw_data_words for keyword in dicts.english["".join(c for c in word.lower() if c not in ('!', '.', ':', ',', '?', '"', '-'))]]
 
     if endword_index:
         words = [dicts.keywords[endword_index]] * config.w
@@ -133,12 +134,12 @@ if __name__ == '__main__':
     # for filename in all_files:
     #     print_stats(filename)
 
-    best_file = 'stats_1_2_2_89_10_tweet_1.txt_2015-05-28 17:16:32.217772.pkl'
-    print_stats(best_file)
+    # best_file = 'stats_1_2_2_89_10_tweet_1.txt_2015-05-28 17:16:32.217772.pkl'
+    # print_stats(best_file)
 
-    tweet_file = 'tweet_CO_1.txt'
+    tweet_file = 'tweet_CO_02.txt'
     # # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    #
-    # dictionaries.create_and_save_dicts(config)
-    # conceal(tweet_file, config)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+
+    dictionaries.create_and_save_dicts(config)
+    conceal(tweet_file, config)
