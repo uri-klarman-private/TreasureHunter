@@ -2,8 +2,10 @@ import sys
 import traceback
 from time import sleep
 import os
+import multiprocessing
+import signal
 from hunter.dictionary import dictionaries
-
+from multiprocessing import Process
 from search.search import Search
 
 from stats.words_stats import WordsStats, print_stats, stats_dir_path
@@ -15,6 +17,9 @@ __author__ = 'uriklarman'
 sidestep_threshold = 600
 tweets_path = dictionaries.resources_path + 'tweets/'
 
+def timeout_handler(signum, frame):
+    print('distillery timed out with signal', signum)
+    raise RuntimeError("distillery timed out")
 
 def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
@@ -28,22 +33,20 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                 continue
 
             link_i += 1
-
-            for i in range(5):
+            while True:
                 try:
+                    signal.signal(signal.SIGALRM, timeout_handler)
+                    signal.alarm(15)
                     essence, uncut_essence = distillery.distill(link, dicts.keywords)
+                    signal.alarm(0)
                     break
-                except:
-                    print 'Distillery failed for the ', i, ' time. restarting browser...'
+                except Exception as inst:
+                    print 'Failed to distill. trying again'
+                    print(traceback.format_exc())
                     link = "http://google.com"
                     distillery.restart_browser()
-                    essence, uncut_essence = [],[]
 
             link_found = set(words).issubset(set(essence))
-            # words_in_uncut_essence = words_set.issubset(set(uncut_essence))
-            # found_words = [x for x in words_set if x in essence]
-            # not_found_words = [x for x in words_set if x not in essence]
-
             stats.update(link_i, link, words, threshold, essence, uncut_essence)
 
             if link_found or link_i >= threshold:
@@ -134,12 +137,14 @@ if __name__ == '__main__':
     # for filename in all_files:
     #     print_stats(filename)
 
-    # best_file = 'stats_1_2_2_89_10_tweet_1.txt_2015-05-28 17:16:32.217772.pkl'
+
+    # stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl
+    # [26, 29, False, 'forward', 5, 1, 5, 19, 19, 7, ['par', 'executive', 'oliver', 'inspiration', 'arena'], set(['oliver']), set(['arena', 'oliver', 'par', 'executive', 'inspiration']), 'https://playedtwice.wordpress.com/', '2015-06-08 17:24:31.617210']
+    # best_file = 'stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl'
     # print_stats(best_file)
 
     tweet_file = 'tweet_CO_02.txt'
-    # # config = dictionaries.Config(1, 2, 2, 89, shuffle_keywords_seed=9, shuffle_stop=100)
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
 
-    dictionaries.create_and_save_dicts(config)
+    # dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)

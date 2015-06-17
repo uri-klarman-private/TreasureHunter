@@ -20,7 +20,7 @@ class Distillery:
         self.regex = re.compile('[^a-zA-Z]')
         self.keywords_dict = keywords_dict
         self.page_load_timeout = page_load_timeout
-        self.start_browser()
+        self.restart_browser()
 
     def restart_browser(self):
         while True:
