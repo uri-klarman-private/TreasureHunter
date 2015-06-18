@@ -56,7 +56,7 @@ def load_stats(file_path, path=None):
             stats = pickle.load(f)
     return stats
 
-def print_stats(stats_filename):
+def print_stats(stats_filename, times_per_forward_word):
     run_stats = load_stats(stats_filename)
     print stats_filename
     print run_stats.encoding_flow[-1]

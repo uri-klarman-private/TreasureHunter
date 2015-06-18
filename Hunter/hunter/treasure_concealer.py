@@ -137,14 +137,18 @@ if __name__ == '__main__':
     # for filename in all_files:
     #     print_stats(filename)
 
-
     # stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl
     # [26, 29, False, 'forward', 5, 1, 5, 19, 19, 7, ['par', 'executive', 'oliver', 'inspiration', 'arena'], set(['oliver']), set(['arena', 'oliver', 'par', 'executive', 'inspiration']), 'https://playedtwice.wordpress.com/', '2015-06-08 17:24:31.617210']
     # best_file = 'stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl'
     # print_stats(best_file)
 
-    tweet_file = 'tweet_CO_02.txt'
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-
+    # tweet_file = 'tweet_CO_02.txt'
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     # dictionaries.create_and_save_dicts(config)
-    conceal(tweet_file, config)
+    # conceal(tweet_file, config)
+
+    all_files = os.listdir(stats_dir_path)
+    relevant_files = [f for f in all_files[1:] if '.pkl' not in f]
+    times_per_forward_word = []
+    for filename in all_files:
+        print_stats(filename, times_per_forward_word)
