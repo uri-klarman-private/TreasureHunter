@@ -148,7 +148,7 @@ if __name__ == '__main__':
     # conceal(tweet_file, config)
 
     all_files = os.listdir(stats_dir_path)
-    relevant_files = [f for f in all_files[1:] if '.pkl' not in f]
+    relevant_files = [f for f in all_files if '.pkl' not in f and 'stats_' in f]
     times_per_forward_word = []
-    for filename in all_files:
+    for filename in relevant_files:
         print_stats(filename, times_per_forward_word)
