@@ -14,7 +14,7 @@ from selenium import webdriver
 from hunter.dictionary.dictionaries import resources_path
 
 
-time_between_searches = 3
+time_between_searches = 10
 
 # Url to use for searches
 # Q_URL = "http://www.google.com/search?hl=en&lr=lang_en&q=%s&btnG=Google+Search"

@@ -41,14 +41,15 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                     signal.alarm(0)
                     break
 
-                except RuntimeError as inst:
+                except RuntimeError as r:
                     signal.alarm(0)
-                    print 'Failed to distill (RuntimeError). trying again...'
                     print(traceback.format_exc())
+                    print 'Failed to distill (RuntimeError). trying again...'
                     link = "http://google.com"
                     distillery.restart_browser()
-                except:
+                except BaseException as b:
                     signal.alarm(0)
+                    print(traceback.format_exc())
                     print 'Failed to distill - some other error!!!. trying again...'
                     continue_loop = True
                     if not continue_loop:
