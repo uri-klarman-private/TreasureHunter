@@ -56,7 +56,7 @@ def load_stats(file_path, path=None):
             stats = pickle.load(f)
     return stats
 
-def print_stats(stats_filename, times_per_forward_word):
+def print_stats(stats_filename, times_per_forward_word, stats_per_forward_word):
     run_stats = load_stats(stats_filename)
     print stats_filename
     print run_stats.encoding_flow[-1]
@@ -65,21 +65,23 @@ def print_stats(stats_filename, times_per_forward_word):
     important_stats = [x[:2] + x[3:4] + [datetime.strptime(x[-1], '%Y-%m-%d %H:%M:%S.%f')] for x in steps_of_change]
 
     forwards = important_stats[:1] + [x for x in important_stats if x[2] == 'forward']
+    times_per_forward_word.append([x[3] for x in forwards])
+    stats_per_forward_word.append(forwards)
 
-    date_object = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-
-    steps_of_success = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] < run_stats.encoding_flow[i+1][0]]
-    steps_of_success_full = [x for x in steps_of_success if x[4] == run_stats.config.w]
-
-    steps_of_backtrace = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] > run_stats.encoding_flow[i+1][0]]
-    steps_of_backtrace_full = [x for x in steps_of_backtrace if x[4] == run_stats.config.w]
-
-    backtrace_success_ratio = float(len(steps_of_backtrace)) / len(steps_of_success)
-    backtrace_success_ratio_full =  float(len(steps_of_backtrace_full)) / len(steps_of_success_full)
-
-    uncut_essences = [x[7] for x in run_stats.encoding_flow]
-
-    steps_with_potential_to_succeed = [x for x in run_stats.encoding_flow if x[4] == x[6]]
-    potential_ratio = float(len(steps_with_potential_to_succeed)) / len(run_stats.encoding_flow)
-
-    print run_stats
+    # date_object = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+    #
+    # steps_of_success = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] < run_stats.encoding_flow[i+1][0]]
+    # steps_of_success_full = [x for x in steps_of_success if x[4] == run_stats.config.w]
+    #
+    # steps_of_backtrace = [run_stats.encoding_flow[i] for i in range(len(run_stats.encoding_flow)-1) if run_stats.encoding_flow[i][0] > run_stats.encoding_flow[i+1][0]]
+    # steps_of_backtrace_full = [x for x in steps_of_backtrace if x[4] == run_stats.config.w]
+    #
+    # backtrace_success_ratio = float(len(steps_of_backtrace)) / len(steps_of_success)
+    # backtrace_success_ratio_full =  float(len(steps_of_backtrace_full)) / len(steps_of_success_full)
+    #
+    # uncut_essences = [x[7] for x in run_stats.encoding_flow]
+    #
+    # steps_with_potential_to_succeed = [x for x in run_stats.encoding_flow if x[4] == x[6]]
+    # potential_ratio = float(len(steps_with_potential_to_succeed)) / len(run_stats.encoding_flow)
+    #
+    # print run_stats

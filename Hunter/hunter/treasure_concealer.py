@@ -1,16 +1,16 @@
+from datetime import timedelta
 import sys
 import traceback
 from time import sleep
 import os
-import multiprocessing
 import signal
-from hunter.dictionary import dictionaries
-from multiprocessing import Process
-from search.search import Search
+import random
 
+from hunter.dictionary import dictionaries
+from search.search import Search
 from stats.words_stats import WordsStats, print_stats, stats_dir_path
 from distillery import Distillery
-
+# from matplotlib import pyplot as plt
 
 __author__ = 'uriklarman'
 
@@ -40,10 +40,19 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                     essence, uncut_essence = distillery.distill(link, dicts.keywords)
                     signal.alarm(0)
                     break
-                except Exception as inst:
-                    print 'Failed to distill. trying again'
+
+                except RuntimeError as inst:
+                    signal.alarm(0)
+                    print 'Failed to distill (RuntimeError). trying again...'
                     print(traceback.format_exc())
                     link = "http://google.com"
+                    distillery.restart_browser()
+                except:
+                    signal.alarm(0)
+                    print 'Failed to distill - some other error!!!. trying again...'
+                    continue_loop = True
+                    if not continue_loop:
+                        break
                     distillery.restart_browser()
 
             link_found = set(words).issubset(set(essence))
@@ -125,7 +134,7 @@ def conceal(tweet_file, config, endword_index=False):
     except Exception:
         print(traceback.format_exc())
         t, v, tb = sys.exc_info()
-        distillery.browser.close()
+        # distillery.browser.close()
         raise t, v, tb
 
     print "collected words are: %s" % collected_words
@@ -136,19 +145,57 @@ if __name__ == '__main__':
     # all_files = os.listdir(stats_dir_path)[1:]
     # for filename in all_files:
     #     print_stats(filename)
-
+    #
     # stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl
     # [26, 29, False, 'forward', 5, 1, 5, 19, 19, 7, ['par', 'executive', 'oliver', 'inspiration', 'arena'], set(['oliver']), set(['arena', 'oliver', 'par', 'executive', 'inspiration']), 'https://playedtwice.wordpress.com/', '2015-06-08 17:24:31.617210']
     # best_file = 'stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl'
     # print_stats(best_file)
 
-    # tweet_file = 'tweet_CO_02.txt'
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dictionaries.create_and_save_dicts(config)
-    # conceal(tweet_file, config)
+    tweet_file = 'tweet_CO_02.txt'
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dictionaries.create_and_save_dicts(config)
+    conceal(tweet_file, config)
 
-    all_files = os.listdir(stats_dir_path)
-    relevant_files = [f for f in all_files if '.pkl' not in f and 'stats_' in f]
-    times_per_forward_word = []
-    for filename in relevant_files:
-        print_stats(filename, times_per_forward_word)
+    # all_files = os.listdir(stats_dir_path)
+    # relevant_files = [f for f in all_files if '.pkl' not in f and 'stats_' in f]
+    # times_per_forward_word = []
+    # stats_per_forward_word = []
+    #
+    # for filename in relevant_files:
+    #     print_stats(filename, times_per_forward_word, stats_per_forward_word)
+    #
+    # all_deltas = []
+    # for tweet_stats in times_per_forward_word:
+    #     for i in range(1, len(tweet_stats)):
+    #         all_deltas.append(tweet_stats[i] - tweet_stats[i-1])
+    #
+    # all_tweets = os.listdir(tweets_path)[1:]
+    # lengths = []
+    # for filename in all_tweets:
+    #     with open(tweets_path + '/' + filename, 'r') as textfile:
+    #         lengths.append(len(textfile.readlines()[0].split(" ")))
+    #
+    # times = []
+    # random.seed(1609)
+    # for length in lengths:
+    #     time_delta = timedelta(seconds=0)
+    #     for i in range(length):
+    #         time_delta += random.choice(all_deltas)
+    #     times.append(time_delta)
+    #
+    # hours = [x.total_seconds() / 3600.0 for x in times]
+    # sorted_hours = sorted(hours)
+    # print sorted_hours
+    #
+    # cdf = []
+    # for i in range(20):
+    #     cdf.append(len([x for x in hours if x <= i]) / len(hours))
+    #
+    # plt.axis([0, 20, 0., 1.1])
+    # plt.plot(cdf, '-r')
+    # plt.xlabel('# of links.txt passed to find feasible essence')
+    # plt.ylabel('CDF')
+    # plt.grid(True)
+    # plt.show()
+    #
+    # print lengths
