@@ -51,6 +51,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                     signal.alarm(0)
                     print(traceback.format_exc())
                     print 'Failed to distill - some other error!!!. trying again...'
+                    link = "http://google.com"
                     continue_loop = True
                     if not continue_loop:
                         break
