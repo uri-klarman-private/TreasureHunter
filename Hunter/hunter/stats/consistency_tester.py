@@ -63,7 +63,7 @@ def sample_search():
     search_engine = search.MarcelSearch(page_load_timeout=10)
     for i,combo in enumerate(keywords_combos):
         print 'starting combo ', i, ' : ', combo
-        current_search_links, next_url = search_engine.new_search(combo)
+        current_search_links, next_url = search_engine.new_search(combo, False)
         if len(current_search_links) != 10:
             print 'links.txt are missing from page - will not sample'
         else :

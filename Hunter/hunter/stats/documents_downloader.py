@@ -22,7 +22,7 @@ def find_links(docs_num):
         num_of_words = random.randint(3,5)
         words = [english_words[random.randrange(10000)] for i in range(num_of_words)]
         # links_list, prev_search_time, next_url = search.new_search(words, prev_search_time)
-        if not search.new_search(words):
+        if not search.new_search(words, False):
             continue
         for i in range(10):
             link = search.next_link(avoid_more_searches=True)

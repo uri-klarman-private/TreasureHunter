@@ -22,6 +22,7 @@ CONTINUED_SEARCH_URL = "https://www.google.com"
 QUERY_URL_PART_1 = 'https://www.google.com/search?q='
 # QUERY_URL_PART_2 = '&lr=lang_en&cr=countryUS&hl=en&source=lnt&tbs=cdr:1,cd_max:1/1/2010,lr:lang_1en,sbd:1&filter=0' # sort by date
 QUERY_URL_PART_2 = '&lr=lang_en&cr=countryUS&hl=en&source=lnt&uule=w+CAIQICIeQ2hpY2FnbyxJbGxpbm9pcyxVbml0ZWQgU3RhdGVz&gl=US&filter=0' # sort by date with uule
+QUERY_URL_PART_2_NO_FILTER = '&lr=lang_en&cr=countryUS&hl=en&source=lnt&uule=w+CAIQICIeQ2hpY2FnbyxJbGxpbm9pcyxVbml0ZWQgU3RhdGVz&gl=US' # sort by date with uule
 
 # uule example
 # QUERY_URL_PART_1 = 'https://www.google.com/search?hl=en&gl=us&q='
@@ -94,13 +95,16 @@ class Search:
         return self.__search_by_url(url)
 
 
-    def new_search(self, words_list):
+    def new_search(self, words_list, do_filter):
         search_phrase = ' '.join(set(['"' + word + '"' for word in words_list]))
         search_phrase += ' -"corpus" -"dictionary" -"glossary" -"lexicon" -"ISSUU" -"archive" -"pdf"'
         # Build the request URL
         query_words_str = urllib.quote_plus(search_phrase)
         self.wait_till_safe()
-        search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2
+        if do_filter:
+            search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2
+        else:
+            search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2_NO_FILTER
 
         return self.__search_by_url(search_url)
 
@@ -181,7 +185,7 @@ class Search:
 
 if __name__ == '__main__':
     engine = Search()
-    links_list, next_url = engine.new_search(['bla', 'bli', 'blu'])
+    links_list, next_url = engine.new_search(['bla', 'bli', 'blu'], False)
     print links_list
     for i in range(100):
         links_list, next_url = engine.continuing_search(next_url)
