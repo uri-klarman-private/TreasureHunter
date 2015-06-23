@@ -23,7 +23,7 @@ def timeout_handler(signum, frame):
 
 def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
-    links_list, next_url = links_list, next_url = search_engine.new_search(words, words[0] == words[1])
+    links_list, next_url = links_list, next_url = search_engine.new_search(words, words[0] != words[1])
     link_i = 0
     link_found = False
     while link_i < threshold:
