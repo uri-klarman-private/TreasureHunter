@@ -169,7 +169,7 @@ if __name__ == '__main__':
         print filename
         print run_stats.encoding_flow[-1]
 
-    #
+    
     # all_deltas = []
     # for tweet_stats in times_per_forward_word:
     #     for i in range(1, len(tweet_stats)):
