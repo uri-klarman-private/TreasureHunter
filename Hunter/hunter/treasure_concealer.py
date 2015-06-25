@@ -1,17 +1,18 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 import sys
 import traceback
 from time import sleep
 import os
 import signal
 import random
+import math
 
 from hunter.dictionary import dictionaries
 from hunter.dictionary.dictionaries import resources_path
 from search.search import Search
 from stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
 from distillery import Distillery
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 
 __author__ = 'uriklarman'
 
@@ -163,13 +164,88 @@ if __name__ == '__main__':
 
     all_files = os.listdir(final_stats_dir_path)
 
-
+    runs = []
     for filename in all_files:
         run_stats = load_stats(filename, final_stats_dir_path)
         print filename
         print run_stats.encoding_flow[-1]
+        runs.append(run_stats)
 
-    
+    run_deltas = []
+    for run in runs:
+
+        times = [datetime.strptime(x[-1], '%Y-%m-%d %H:%M:%S.%f') for x in run.encoding_flow]
+        deltas = [timedelta(seconds=0)]
+        deltas += [times[i] - times[i-1] for i in range(1, len(run.encoding_flow))]
+        threshold = timedelta(seconds=60)
+        large_deltas_i = [i for i in range(len(deltas)) if deltas[i] > threshold]
+
+        change_steps = [i for i in range(len(run.encoding_flow)-1) if run.encoding_flow[i][0] != run.encoding_flow[i+1][0]]
+        forward_steps = [i for i in change_steps if run.encoding_flow[i][3] == 'forward']
+        tmp_forwrd = [0] + forward_steps
+        forward_deltas = [times[tmp_forwrd[i]] - times[tmp_forwrd[i-1]] for i in range(1, len(tmp_forwrd))]
+
+        fwd_delta_without_large_deltas = []
+        for step_i in range(len(forward_steps)):
+            step = forward_steps[step_i]
+            if step_i == 0:
+                prev_step = 0
+            else:
+                prev_step = forward_steps[step_i-1]
+            relevant_large_deltas_i = [i for i in large_deltas_i if i > prev_step and i <= step]
+            time_to_reduce = timedelta(seconds=0)
+            for relevant_i in relevant_large_deltas_i:
+                time_to_reduce += deltas[relevant_i]
+
+            fwd_delta_without_large_deltas.append(forward_deltas[step_i] - time_to_reduce)
+
+        run_deltas.append(fwd_delta_without_large_deltas)
+
+    run_sums = [sum(x, timedelta()) for x in run_deltas]
+
+    hours = [x.total_seconds() / 3600.0 for x in run_sums]
+    sorted_hours = sorted(hours)
+    print sorted_hours
+
+    max_time = int(math.ceil(max(sorted_hours)))
+    cdf = []
+    for i in range(max_time + 2):
+        cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
+    # for i in range(24):
+    #     cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
+
+    # plt.axis([0, 24, 0., 1.1])
+    plt.plot(cdf, '-r')
+    plt.xlabel('Hours')
+    plt.ylabel('CDF')
+    plt.grid(True)
+    plt.show()
+    print 'done'
+
+    steps_times = []
+    for run in run_deltas:
+        steps_times += [x.total_seconds()/60.0 for x in run]
+
+    max_time = int(math.ceil(max(steps_times)))
+    cdf = []
+    for i in range(max_time + 120):
+        cdf.append(len([x for x in steps_times if x <= i]) / float(len(steps_times)))
+
+    # plt.axis([0, 24, 0., 1.1])
+    plt.plot(cdf, '-r')
+    plt.xlabel('Minutes')
+    plt.ylabel('CDF')
+    plt.grid(True)
+    plt.show()
+    print 'done'
+
+
+
+
+
+
+
+
     # all_deltas = []
     # for tweet_stats in times_per_forward_word:
     #     for i in range(1, len(tweet_stats)):
@@ -189,19 +265,6 @@ if __name__ == '__main__':
     #         time_delta += random.choice(all_deltas)
     #     times.append(time_delta)
     #
-    # hours = [x.total_seconds() / 3600.0 for x in times]
-    # sorted_hours = sorted(hours)
-    # print sorted_hours
-    #
-    # cdf = []
-    # for i in range(20):
-    #     cdf.append(len([x for x in hours if x <= i]) / len(hours))
-    #
-    # plt.axis([0, 20, 0., 1.1])
-    # plt.plot(cdf, '-r')
-    # plt.xlabel('# of links.txt passed to find feasible essence')
-    # plt.ylabel('CDF')
-    # plt.grid(True)
-    # plt.show()
+
     #
     # print lengths
