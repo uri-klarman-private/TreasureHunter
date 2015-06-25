@@ -7,8 +7,9 @@ import signal
 import random
 
 from hunter.dictionary import dictionaries
+from hunter.dictionary.dictionaries import resources_path
 from search.search import Search
-from stats.words_stats import WordsStats, print_stats, stats_dir_path
+from stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
 from distillery import Distillery
 # from matplotlib import pyplot as plt
 
@@ -16,6 +17,8 @@ __author__ = 'uriklarman'
 
 sidestep_threshold = 600
 tweets_path = dictionaries.resources_path + 'tweets/'
+final_stats_dir_path = resources_path + 'final_stats/'
+
 
 def timeout_handler(signum, frame):
     print('distillery timed out with signal', signum)
@@ -153,18 +156,19 @@ if __name__ == '__main__':
     # best_file = 'stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl'
     # print_stats(best_file)
 
-    tweet_file = 'tweet_CO_09.txt'
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    dictionaries.create_and_save_dicts(config)
-    conceal(tweet_file, config)
+    # tweet_file = 'tweet_CO_09.txt'
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dictionaries.create_and_save_dicts(config)
+    # conceal(tweet_file, config)
 
-    # all_files = os.listdir(stats_dir_path)
-    # relevant_files = [f for f in all_files if '.pkl' not in f and 'stats_' in f]
-    # times_per_forward_word = []
-    # stats_per_forward_word = []
-    #
-    # for filename in relevant_files:
-    #     print_stats(filename, times_per_forward_word, stats_per_forward_word)
+    all_files = os.listdir(final_stats_dir_path)
+
+
+    for filename in all_files:
+        run_stats = load_stats(filename, final_stats_dir_path)
+        print filename
+        print run_stats.encoding_flow[-1]
+
     #
     # all_deltas = []
     # for tweet_stats in times_per_forward_word:
