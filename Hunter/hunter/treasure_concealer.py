@@ -153,7 +153,7 @@ if __name__ == '__main__':
     # best_file = 'stats_1_2_2_89_10_tweet_CO_1.txt_2015-06-08 10:32:28.329322.pkl'
     # print_stats(best_file)
 
-    tweet_file = 'tweet_CO_01.txt'
+    tweet_file = 'tweet_CO_09.txt'
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
