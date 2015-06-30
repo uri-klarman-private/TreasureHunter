@@ -3,14 +3,18 @@ import multiprocessing
 from googleapiclient.sample_tools import init
 import itertools
 import requests
-from files_handler import save,read
+# from files_handler import save,read
+from hunter.dictionary import dictionaries
+from hunter.dictionary.combinations_provider import gen_subsets_special
+from hunter.distillery import Distillery
+import cPickle as pickle
 
 __author__ = 'uriklarman'
 import json
 import urllib
 
 class GoogleSearch:
-    
+
     def __init__(self):
         self.links = []
         self.next_link_index = 0
@@ -34,7 +38,7 @@ class GoogleSearch:
         return res
 
 
-    def next_link(self, avoid_more_searches=False):
+    def next_link(self, avoid_more_searches=True):
         if self.next_link_index >= len(self.links):
             if avoid_more_searches:
                 return False
@@ -57,12 +61,7 @@ class GoogleSearch:
             print 'No results'
             return False
         self.totalResults = int(data['searchInformation']['totalResults'])
-        print '*'*30
-        print '*'*30
-        print 'search: ', self.params['q']
-        print 'Total search results are: ', self.totalResults
-        print '*'*30
-        print '*'*30
+        print 'search: ', self.params['q'], ' Total search results are: ', self.totalResults
         if self.totalResults == 0:
             return False
 
@@ -180,5 +179,82 @@ def test_parallel_search():
     print len(links_list)
     print len(set(links_list))
     print 'Done'
+
+
+def search_api(searchwords):
+    links = ['http://www.o-cinema.org/event/dear-white-people/',
+    'http://www.pbs.org/wgbh/americanexperience/features/primary-resources/jfk-diem/?flavour=mobile',
+    'https://circ.ahajournals.org/site/misc/about.xhtml',
+    'https://r-e-p-l-i-c-a.bandcamp.com/',
+    'http://www.thecrimson.com/article/2015/3/26/around-town-iced-coffee/?page=2',
+    'https://www.pinterest.com/y2kvictim/%E5%87%B6/',
+    'http://www.beardstclair.com/blog-category/estate-planning.html',
+    'http://intlschool.org/itk-pre-11-16-11/?currentPage=98',
+    'http://www.hollywoodreporter.com/news/billboard-music-awards-2015-winners-795707',
+    'http://blog.ocbeerblog.com/2014/07/25/forging-a-brewhouse-barley-forge-in-costa-mesa/',
+    'http://www.firstchineseherbs.com/products-page/bulk-herbs-y/yellowdock-root/',
+    'http://www.medialifemagazine.com:8080/news2002/may02/may27/4_thurs/news7thursday.html',
+    'http://boutierwinery.com/aobhexpressi/lg-health-express-our-nurse-practitioners-will-se-matovina.html',
+    'http://www.purpose.com/',
+    'http://thejudyroom.com/ep/index.html',
+    'http://wiki.apache.org/db-derby/ReplicationWriteup']
+    return links
+
+def create_links_dictionary_with_API():
+    get_links_from_google_API()
+    # process_links_to_essences(config, dicts)
+
+
+def get_links_from_google_API(config, dicts):
+    keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
+    generator = gen_subsets_special(keywords, config.essence_len)
+
+    google = GoogleSearch()
+
+    for i in range(10000):
+        searchwords = generator.next()
+        google.new_search(searchwords)
+        if len(google.links) == 0:
+            searchwords = generator.next()
+            google.new_search(searchwords)
+            if len(google.links) == 0:
+                break
+        with open('/Users/uriklarman/GitHub/TreasureHunter/Hunter/hunter/search/links.txt', 'a') as myfile:
+            myfile.write('\n' + '\n'.join(google.links))
+
+        google.links = []
+
+def process_links_to_essences(config, dicts):
+    distillery = Distillery(config.essence_len, dicts.keywords)
+
+    links_essences_1_to_1 = {}
+    with open(...) as f:
+        for line_i, link in enumerate(f):
+
+            if link in links_essences_1_to_1:
+                continue
+
+            essence, uncut = distillery.distill(link, dicts.keywords)
+            essence = frozenset(essence)
+
+            if len(essence) < config.essence_len:
+                continue
+
+            if essence in links_essences_1_to_1:
+                continue
+
+            links_essences_1_to_1[link] = essence
+            links_essences_1_to_1[essence] = link
+
+            if line_i % 1000 == 0:
+                print 'line_i: ', line_i
+                with open('/Users/uriklarman/GitHub/TreasureHunter/Hunter/hunter/search/essences.pkl', 'a') as myfile:
+                    pickle.dump(links_essences_1_to_1)
+
+
 if __name__ == '__main__':
-    test_parallel_search()
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+
+    # create_links_dictionary_with_API()
+    process_links_to_essences()
