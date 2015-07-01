@@ -1,17 +1,21 @@
-from multiprocessing import Pool, Queue
+from multiprocessing import Pool, Manager
 import multiprocessing
-from googleapiclient.sample_tools import init
-import itertools
+
 import requests
-# from files_handler import save,read
+
 from hunter.dictionary import dictionaries
 from hunter.dictionary.combinations_provider import gen_subsets_special
 from hunter.distillery import Distillery
 import cPickle as pickle
+from os import path
+
+import json
+
 
 __author__ = 'uriklarman'
-import json
-import urllib
+
+links_text_path = path.dirname(__file__) + '/links.txt'
+mapping_path = path.dirname(__file__) + '/essences.pickel'
 
 class GoogleSearch:
 
@@ -78,132 +82,6 @@ class GoogleSearch:
 
         return True
 
-def search_combinations(seed_words, total_links_wanted, search_parallel_factor, combin_factor=2, first_chunk=0):
-    combinations = list(itertools.combinations(seed_words,r=combin_factor))
-    links_per_combination = total_links_wanted / len(combinations) + 1
-
-    # use 20 chunks of 5%, but at least 50 combinations per chunk
-    chunk_size = max(len(combinations) / 20, 30)
-    combinations_chunks = list(chunks(combinations,chunk_size))
-
-    print 'About to start searches'
-    print '-'*25
-    print 'Number of searches required: ', len(combinations)
-    print 'Number of searches chunks: ', len(combinations_chunks)
-    print 'First chunk to be searched: ', first_chunk
-    print '-'*25
-
-    __search_combinations_chunks(links_per_combination, combinations_chunks, first_chunk, search_parallel_factor)
-    chunks_list = read_links_from_disk(len(combinations_chunks))
-
-    # Notice that this is a list of chunks. each chunk is a list of results. each result is a list of links received
-    # from a specific combination.
-    return chunks_list
-
-def __search_combinations_chunks(links_per_combination, combinations_chunks, first_chunk, search_parallel_factor):
-    manager = multiprocessing.Manager()
-    search_engines = manager.Queue(search_parallel_factor)
-    # search_engines = Queue(search_parallel_factor)
-    for i in range(search_parallel_factor):
-        search_engines.put(GoogleSearch())
-
-    pool = Pool(search_parallel_factor)
-    links = []
-    for i,chunk in enumerate(combinations_chunks):
-        if i < first_chunk:
-            print 'Google search passing chunk: ', i
-        else:
-            print 'Google search starting chunk: ', i
-            process_params = [(combination, links_per_combination, search_engines) for combination in chunk]
-            links = pool.map(search_single_combination, process_params)
-            print 'Google search finished chunk: ', i
-            save(links,'links_chunk_'+str(i))
-
-    pool.close()
-
-    return links
-
-def search_single_combination((combination, links_per_combination, search_engines)):
-    engine = None
-    try:
-        links = []
-        engine = search_engines.get()
-        engine.new_search(combination)
-        for i in range(links_per_combination):
-            link = engine.next_link()
-            if link == None:
-                break
-            else:
-                links.append(link)
-
-        return links
-    finally:
-        if engine != None:
-            search_engines.put(engine)
-
-
-def read_links_from_disk(num_of_chunks):
-    chunks_list = []
-    for i in range(num_of_chunks):
-        chunks_list.append(read('links_chunk_'+str(i)))
-    return chunks_list
-
-def chunks(l, n):
-    """ Yield successive n-sized chunks from l.
-    """
-    for i in xrange(0, len(l), n):
-        yield l[i:i+n]
-
-
-
-def test_basic_search_functionality():
-    google = GoogleSearch()
-    word_sets = [['done', 'store'], ['paper', 'blue', 'can', 'happy']]
-
-    for set in word_sets:
-        google.new_search(set)
-        for i in range(20):
-            link = google.next_link()
-            print link
-
-    print 'All done!'
-
-def test_parallel_search():
-    seed_words = ['average', 'build', 'crack', 'drone', 'elephant', 'fresh', 'groom']
-    total_links_wanted = 1000
-    search_parallel_factor = 10
-    combin_factor=3
-    first_chunk=2
-    chunks_list = search_combinations(seed_words, total_links_wanted, search_parallel_factor, combin_factor, first_chunk)
-    links_list = [link for chunk in chunks_list for combination in chunk for link in combination]
-    print len(links_list)
-    print len(set(links_list))
-    print 'Done'
-
-
-def search_api(searchwords):
-    links = ['http://www.o-cinema.org/event/dear-white-people/',
-    'http://www.pbs.org/wgbh/americanexperience/features/primary-resources/jfk-diem/?flavour=mobile',
-    'https://circ.ahajournals.org/site/misc/about.xhtml',
-    'https://r-e-p-l-i-c-a.bandcamp.com/',
-    'http://www.thecrimson.com/article/2015/3/26/around-town-iced-coffee/?page=2',
-    'https://www.pinterest.com/y2kvictim/%E5%87%B6/',
-    'http://www.beardstclair.com/blog-category/estate-planning.html',
-    'http://intlschool.org/itk-pre-11-16-11/?currentPage=98',
-    'http://www.hollywoodreporter.com/news/billboard-music-awards-2015-winners-795707',
-    'http://blog.ocbeerblog.com/2014/07/25/forging-a-brewhouse-barley-forge-in-costa-mesa/',
-    'http://www.firstchineseherbs.com/products-page/bulk-herbs-y/yellowdock-root/',
-    'http://www.medialifemagazine.com:8080/news2002/may02/may27/4_thurs/news7thursday.html',
-    'http://boutierwinery.com/aobhexpressi/lg-health-express-our-nurse-practitioners-will-se-matovina.html',
-    'http://www.purpose.com/',
-    'http://thejudyroom.com/ep/index.html',
-    'http://wiki.apache.org/db-derby/ReplicationWriteup']
-    return links
-
-def create_links_dictionary_with_API():
-    get_links_from_google_API()
-    # process_links_to_essences(config, dicts)
-
 
 def get_links_from_google_API(config, dicts):
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
@@ -219,42 +97,99 @@ def get_links_from_google_API(config, dicts):
             google.new_search(searchwords)
             if len(google.links) == 0:
                 break
-        with open('/Users/uriklarman/GitHub/TreasureHunter/Hunter/hunter/search/links.txt', 'a') as myfile:
+        with open(links_text_path, 'a') as myfile:
             myfile.write('\n' + '\n'.join(google.links))
 
         google.links = []
 
-def process_links_to_essences(config, dicts):
-    distillery = Distillery(config.essence_len, dicts.keywords)
 
-    links_essences_1_to_1 = {}
-    with open(...) as f:
+threads = 2
+def parallel_create_links_essences_map(first_line):
+    in_queue = multiprocessing.Queue(threads)
+    out_queue = multiprocessing.Queue(threads)
+
+    out_queue_to_dict_job = multiprocessing.Process(target=out_queue_to_dict, args=(out_queue,))
+    out_queue_to_dict_job.start()
+
+    jobs = []
+    for i in range(threads):
+        p = multiprocessing.Process(target=in_queue_to_out_queu, args=(in_queue, out_queue))
+        jobs.append(p)
+        p.start()
+
+    links_to_in_queue(in_queue, first_line, threads)
+
+
+def links_to_in_queue(in_queue, first_line, threads):
+    with open(links_text_path, 'r') as f:
+        links_chunk = []
         for line_i, link in enumerate(f):
-
-            if link in links_essences_1_to_1:
+            if line_i < first_line:
                 continue
-
-            essence, uncut = distillery.distill(link, dicts.keywords)
-            essence = frozenset(essence)
-
-            if len(essence) < config.essence_len:
-                continue
-
-            if essence in links_essences_1_to_1:
-                continue
-
-            links_essences_1_to_1[link] = essence
-            links_essences_1_to_1[essence] = link
-
-            if line_i % 1000 == 0:
+            links_chunk.append(link)
+            if line_i % 100 == 0:
+                in_queue.put(links_chunk)
+                links_chunk = []
                 print 'line_i: ', line_i
-                with open('/Users/uriklarman/GitHub/TreasureHunter/Hunter/hunter/search/essences.pkl', 'a') as myfile:
-                    pickle.dump(links_essences_1_to_1)
+
+    print 'finished all ', line_i, 'lines in links.txt'
+    for i in range(threads):
+        in_queue.put(None)
 
 
-if __name__ == '__main__':
+
+def in_queue_to_out_queu(in_queue, out_queue):
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     dicts = dictionaries.load_dictionaries(config)
+    distillery = Distillery(config.essence_len, dicts.keywords)
 
-    # create_links_dictionary_with_API()
-    process_links_to_essences()
+    while True:
+        links = in_queue.get()
+        if links is None:
+            out_queue.put((None, None))
+            break
+        for link in links:
+            try:
+                essence, uncut = distillery.distill(link)
+                essence = frozenset(essence)
+                out_queue.put((link, essence))
+            except:
+                print 'distillery failed! Skipping link: ', link
+                distillery.restart_browser()
+                continue
+
+
+def out_queue_to_dict(out_queue):
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    with open(mapping_path, 'rb') as myfile:
+        links_essences_1_to_1 = pickle.load(myfile)
+    nones_found = 0
+    while nones_found < threads:
+        print 'out_queue_to_dict - new iteration'
+        link, essence = out_queue.get()
+        print 'out_queue_to_dict - got new (link,essence)'
+
+        if link is None:
+            nones_found += 1
+        else:
+            if len(essence) < config.essence_len:
+                continue
+            if link in links_essences_1_to_1:
+                continue
+            if essence in links_essences_1_to_1:
+                continue
+            else:
+                links_essences_1_to_1[link] = essence
+                links_essences_1_to_1[essence] = link
+                if len(links_essences_1_to_1) % 100 == 0:
+                    with open(mapping_path, 'wb') as myfile:
+                        pickle.dump(links_essences_1_to_1, myfile)
+
+    with open(mapping_path, 'wb') as myfile:
+        pickle.dump(links_essences_1_to_1, myfile)
+
+if __name__ == '__main__':
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dicts = dictionaries.load_dictionaries(config)
+    # get_links_from_google_API()
+    parallel_create_links_essences_map(3839)
