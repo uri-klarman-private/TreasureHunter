@@ -84,6 +84,17 @@ class GoogleSearch:
 
 
 def get_links_from_google_API(config, dicts):
+    links_set = set()
+    # links_list = []
+    with open(links_text_path, 'r') as f:
+        for line_i, link in enumerate(f):
+            if link not in links_set:
+                links_set.add(link)
+    #             links_list.append(link)
+    # with open(links_text_path, 'w') as f:
+    #     for link in links_list:
+    #         f.write(link)
+
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
     generator = gen_subsets_special(keywords, config.essence_len)
 
@@ -92,16 +103,21 @@ def get_links_from_google_API(config, dicts):
     for i in range(10000):
         searchwords = generator.next()
         google.new_search(searchwords)
-        if len(google.links) == 0:
-            searchwords = generator.next()
-            google.new_search(searchwords)
-            if len(google.links) == 0:
+        links = []
+        for i in range(20):
+            link = google.next_link(avoid_more_searches=False)
+            if not link:
                 break
+            elif link in links_set:
+                continue
+            else:
+                links_set.add(link)
+                links.append(link)
+
+        if len(links) == 0:
+            break
         with open(links_text_path, 'a') as myfile:
             myfile.write('\n' + '\n'.join(google.links))
-
-        google.links = []
-
 
 threads = 2
 def parallel_create_links_essences_map(first_line):
@@ -187,8 +203,8 @@ def out_queue_to_dict(out_queue):
         pickle.dump(links_essences_1_to_1, myfile)
 
 if __name__ == '__main__':
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dicts = dictionaries.load_dictionaries(config)
-    # get_links_from_google_API(config, dicts)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+    get_links_from_google_API(config, dicts)
 
-    parallel_create_links_essences_map(3839)
+    # parallel_create_links_essences_map(3839)
