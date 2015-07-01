@@ -36,7 +36,7 @@ class GoogleSearch:
 
     def new_search(self, words):
         self.params['start'] = 1
-        include = ' '.join(set(['"' + word + '"' for word in words]))
+        include = ' '.join(set(['"' + word + '"' for word in words])) + ' -"googlelist"'
         self.params['q'] = include
         res = self.execute_search()
         return res
@@ -84,16 +84,22 @@ class GoogleSearch:
 
 
 def get_links_from_google_API(config, dicts):
-    links_set = set()
+    # links_set = set()
     # links_list = []
-    with open(links_text_path, 'r') as f:
-        for line_i, link in enumerate(f):
-            if link not in links_set:
-                links_set.add(link)
-    #             links_list.append(link)
+    # with open(links_text_path, 'r') as f:
+    #     lines = f.read().splitlines()
+    #     for line in lines:
+    #         if line not in links_set:
+    #             links_set.add(line)
+    #             links_list.append(line)
+    #
     # with open(links_text_path, 'w') as f:
-    #     for link in links_list:
-    #         f.write(link)
+    #     f.write('\n'.join(links_list))
+
+    with open(links_text_path, 'r') as f:
+        links = f.read().splitlines()
+    links_set = set(links)
+
 
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
     generator = gen_subsets_special(keywords, config.essence_len)
@@ -115,9 +121,11 @@ def get_links_from_google_API(config, dicts):
                 links.append(link)
 
         if len(links) == 0:
-            break
+            stop = False
+            if stop:
+                break
         with open(links_text_path, 'a') as myfile:
-            myfile.write('\n' + '\n'.join(google.links))
+            myfile.write('\n' + '\n'.join(links))
 
 threads = 10
 def parallel_create_links_essences_map(first_line):
@@ -207,4 +215,4 @@ if __name__ == '__main__':
     dicts = dictionaries.load_dictionaries(config)
     get_links_from_google_API(config, dicts)
 
-    # parallel_create_links_essences_map(3839)
+    # parallel_create_links_essences_map(0)
