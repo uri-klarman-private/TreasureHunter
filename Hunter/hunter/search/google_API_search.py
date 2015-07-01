@@ -119,7 +119,7 @@ def get_links_from_google_API(config, dicts):
         with open(links_text_path, 'a') as myfile:
             myfile.write('\n' + '\n'.join(google.links))
 
-threads = 2
+threads = 10
 def parallel_create_links_essences_map(first_line):
     in_queue = multiprocessing.Queue(threads)
     out_queue = multiprocessing.Queue(threads)
