@@ -58,7 +58,7 @@ class Distillery:
         self.browser.set_script_timeout(self.page_load_timeout) # seconds
         self.browser.set_page_load_timeout(self.page_load_timeout+1)
 
-    def distill(self, link, keywords_dict):
+    def distill(self, link):
         open_browser_duration = datetime.now() - self.last_browser_restart_time
         if open_browser_duration.total_seconds() > 120:
             self.restart_browser()
