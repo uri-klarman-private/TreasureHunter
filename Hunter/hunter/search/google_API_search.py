@@ -102,7 +102,7 @@ def get_links_from_google_API(config, dicts):
 
 
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
-    generator = gen_subsets_special(keywords, config.essence_len)
+    generator = gen_subsets_special(keywords, config.essence_len-1)
 
     google = GoogleSearch()
 
@@ -120,7 +120,7 @@ def get_links_from_google_API(config, dicts):
                 links_set.add(link)
                 links.append(link)
 
-        if len(links) == 0:
+        if len(google.links) == 0:
             stop = False
             if stop:
                 break
