@@ -216,11 +216,22 @@ def measure_covered_clues():
     dicts = dictionaries.load_dictionaries(config)
     keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
 
-    super_dict = create_super_dict(keywords)
-    # with open(mapping_path, 'rb') as myfile:
-    #     super_dict = pickle.load(myfile)
+    # super_dict = create_super_dict(keywords)
+    with open(super_dict_path, 'rb') as myfile:
+        super_dict = pickle.load(myfile)
 
     generator = gen_subsets_special(keywords, config.essence_len-1)
+    success_count = 0
+    tries = 1000
+    for i in range(tries):
+        clue = generator.next()
+        setlist = []
+        for keyword in clue:
+            setlist.append(super_dict[keyword])
+        links = set.intersection(*setlist)
+        if len(links) > 0:
+            success_count += 1
+    print 'success rate is: ', success_count / float(tries)
 
 
 
@@ -271,10 +282,10 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dicts = dictionaries.load_dictionaries(config)
-    # get_links_from_google_API(config, dicts)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+    get_links_from_google_API(config, dicts)
 
     # parallel_create_links_essences_map(0)
 
-    measure_covered_clues()
+    # measure_covered_clues()
