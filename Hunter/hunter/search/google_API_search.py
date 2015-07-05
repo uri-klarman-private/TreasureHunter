@@ -152,7 +152,7 @@ def links_to_in_queue(in_queue, first_line, threads):
                 continue
             links_chunk.append(link)
             if line_i % 100 == 0:
-                in_queue.put(links_chunk)
+                in_queue.put(str.strip(links_chunk))
                 links_chunk = []
                 print 'line_i: ', line_i
 
