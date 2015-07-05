@@ -16,6 +16,7 @@ __author__ = 'uriklarman'
 
 links_text_path = path.dirname(__file__) + '/links.txt'
 mapping_path = path.dirname(__file__) + '/essences.pickel'
+super_dict_path = path.dirname(__file__) + '/super_dict.pkl'
 
 class GoogleSearch:
 
@@ -99,7 +100,6 @@ def get_links_from_google_API(config, dicts):
     with open(links_text_path, 'r') as f:
         links = f.read().splitlines()
     links_set = set(links)
-
 
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
     generator = gen_subsets_special(keywords, config.essence_len-1)
@@ -210,9 +210,46 @@ def out_queue_to_dict(out_queue):
     with open(mapping_path, 'wb') as myfile:
         pickle.dump(links_essences_1_to_1, myfile)
 
-if __name__ == '__main__':
+
+def measure_covered_clues():
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     dicts = dictionaries.load_dictionaries(config)
-    get_links_from_google_API(config, dicts)
+    keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
+    for keyword in keywords:
+        print keyword
+
+    super_dict = create_super_dict(keywords)
+    # with open(mapping_path, 'rb') as myfile:
+    #     super_dict = pickle.load(myfile)
+
+    generator = gen_subsets_special(keywords, config.essence_len-1)
+
+
+
+def create_super_dict(keywords):
+    super_dict = {}
+    for keyword in keywords:
+        super_dict[keyword] = set()
+
+    with open(mapping_path, 'rb') as myfile:
+        links_essences_1_to_1 = pickle.load(myfile)
+
+    for i, key in enumerate(links_essences_1_to_1):
+        if type(key) is str:
+            continue
+        for keyword in key:
+            super_dict[keyword].add(i)
+
+    with open(super_dict_path, 'wb') as myfile:
+        pickle.dump(super_dict, myfile)
+
+    return super_dict
+
+if __name__ == '__main__':
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dicts = dictionaries.load_dictionaries(config)
+    # get_links_from_google_API(config, dicts)
 
     # parallel_create_links_essences_map(0)
+
+    measure_covered_clues()
