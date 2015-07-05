@@ -158,8 +158,8 @@ if __name__ == '__main__':
     # print_stats(best_file)
 
     # tweet_file = 'tweet_CO_09.txt'
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dictionaries.create_and_save_dicts(config)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dictionaries.create_and_save_dicts(config)
     # conceal(tweet_file, config)
 
     all_files = os.listdir(final_stats_dir_path)

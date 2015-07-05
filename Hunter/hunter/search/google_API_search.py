@@ -215,8 +215,6 @@ def measure_covered_clues():
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     dicts = dictionaries.load_dictionaries(config)
     keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
-    for keyword in keywords:
-        print keyword
 
     super_dict = create_super_dict(keywords)
     # with open(mapping_path, 'rb') as myfile:
@@ -234,16 +232,43 @@ def create_super_dict(keywords):
     with open(mapping_path, 'rb') as myfile:
         links_essences_1_to_1 = pickle.load(myfile)
 
+    # links_essences_1_to_1 = dict(map(clear_str_only,x) for x in links_essences_1_to_1.items())
+    # for key,val in links_essences_1_to_1.items():
+    #     delete = False
+    #     if type(key) is frozenset:
+    #         if 'pump' in key or 'quotes' in key:
+    #             delete = True
+    #     else:
+    #         if 'pump' in key or 'quotes' in val:
+    #             delete = True
+    #
+    #     if delete:
+    #         del(links_essences_1_to_1[key])
+    #
+    # with open(mapping_path, 'wb') as myfile:
+    #     pickle.dump(links_essences_1_to_1, myfile)
+
     for i, key in enumerate(links_essences_1_to_1):
         if type(key) is str:
             continue
+        link = links_essences_1_to_1[key]
         for keyword in key:
-            super_dict[keyword].add(i)
+            super_dict[keyword].add(link)
 
     with open(super_dict_path, 'wb') as myfile:
         pickle.dump(super_dict, myfile)
 
     return super_dict
+
+# def clear_str_only(x):
+#     if type(x) is str:
+#         return str.strip(x)
+#     elif type(x) is frozenset:
+#         return x
+#     else:
+#         print 'found ', x, ' which is a ', type(x)
+#         return x
+
 
 if __name__ == '__main__':
     # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
