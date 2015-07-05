@@ -150,9 +150,9 @@ def links_to_in_queue(in_queue, first_line, threads):
         for line_i, link in enumerate(f):
             if line_i < first_line:
                 continue
-            links_chunk.append(link)
+            links_chunk.append(str.strip(link))
             if line_i % 100 == 0:
-                in_queue.put(str.strip(links_chunk))
+                in_queue.put(links_chunk)
                 links_chunk = []
                 print 'line_i: ', line_i
 
@@ -282,10 +282,10 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    dicts = dictionaries.load_dictionaries(config)
-    get_links_from_google_API(config, dicts)
-
-    # parallel_create_links_essences_map(0)
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dicts = dictionaries.load_dictionaries(config)
+    # get_links_from_google_API(config, dicts)
+    #
+    parallel_create_links_essences_map(140000)
 
     # measure_covered_clues()
