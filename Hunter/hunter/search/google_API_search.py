@@ -30,9 +30,14 @@ class GoogleSearch:
 
         self.params = {}
         self.params['alt'] = 'json'
-        self.params['key'] = 'AIzaSyDTZfn3N86ve0VivgQYT_2yVdiBW9HoeNU'
-        self.params['cx'] = '007456907743860748191:oj1who__t-g'
+        # self.params['key'] = 'AIzaSyDTZfn3N86ve0VivgQYT_2yVdiBW9HoeNU' #treasure hunter CSE
+        self.params['key'] = 'AIzaSyDbdrd_CyQhtDS1Km_VdblVDqun6uyyFAI' #treasure hunter 2 CSE
+
+        # self.params['cx'] = '007456907743860748191:oj1who__t-g' #treasure hunter CSE
+        self.params['cx'] = '004405701384112129294:onvr3tdk4-m' #treasure hunter 2 CSE
         # self.params['sort'] = 'date-sdate:a'
+
+
 
 
     def new_search(self, words):
@@ -282,10 +287,10 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dicts = dictionaries.load_dictionaries(config)
-    # get_links_from_google_API(config, dicts)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+    get_links_from_google_API(config, dicts)
     #
-    parallel_create_links_essences_map(1865000)
-
+    # parallel_create_links_essences_map(232000)
+    #
     # measure_covered_clues()
