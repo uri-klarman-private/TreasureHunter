@@ -42,7 +42,7 @@ class GoogleSearch:
 
     def new_search(self, words):
         self.params['start'] = 1
-        include = ' '.join(set(['"' + word + '"' for word in words])) + ' -"googlelist"'
+        include = ' '.join(set(['"' + word + '"' for word in words])) + ' -"googlelist" -"pdf"'
         self.params['q'] = include
         res = self.execute_search()
         return res
@@ -111,7 +111,7 @@ def get_links_from_google_API(config, dicts):
 
     google = GoogleSearch()
 
-    for i in range(5000):
+    for i in range(10000):
         searchwords = generator.next()
         google.new_search(searchwords)
         links = []
@@ -155,7 +155,10 @@ def links_to_in_queue(in_queue, first_line, threads):
         for line_i, link in enumerate(f):
             if line_i < first_line:
                 continue
-            links_chunk.append(str.strip(link))
+            stripped_link = str.strip(link)
+            if not stripped_link:
+                continue
+            links_chunk.append(stripped_link)
             if line_i % 100 == 0:
                 in_queue.put(links_chunk)
                 links_chunk = []
@@ -291,6 +294,6 @@ if __name__ == '__main__':
     dicts = dictionaries.load_dictionaries(config)
     get_links_from_google_API(config, dicts)
     #
-    # parallel_create_links_essences_map(232000)
+    # parallel_create_links_essences_map(275000)
     #
     # measure_covered_clues()
