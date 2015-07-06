@@ -302,6 +302,7 @@ if __name__ == '__main__':
     output = []
     with open(links_text_path, 'r') as f:
         lines = f.read().splitlines()
+        print 'len(lines) is: ', len(lines)
         for line in lines:
             if not line:
                 continue
@@ -310,5 +311,6 @@ if __name__ == '__main__':
             links_set.add(line)
             links_list.append(line)
 
+    print 'len(links_list): ', len(links_list)
     with open(links_text_path, 'w') as f:
         f.write('\n'.join(links_list))
