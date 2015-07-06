@@ -111,11 +111,11 @@ def get_links_from_google_API(config, dicts):
 
     google = GoogleSearch()
 
-    for i in range(10000):
+    for i in range(5000):
         searchwords = generator.next()
         google.new_search(searchwords)
         links = []
-        for i in range(20):
+        for i in range(40):
             link = google.next_link(avoid_more_searches=False)
             if not link:
                 break
@@ -227,7 +227,7 @@ def measure_covered_clues():
 
     generator = gen_subsets_special(keywords, config.essence_len-1)
     success_count = 0
-    tries = 1000
+    tries = 10000
     for i in range(tries):
         clue = generator.next()
         setlist = []
