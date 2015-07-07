@@ -294,7 +294,7 @@ if __name__ == '__main__':
     # dicts = dictionaries.load_dictionaries(config)
     # get_links_from_google_API(config, dicts)
     #
-    # parallel_create_links_essences_map(17000)
+    parallel_create_links_essences_map(17000)
     #
     # measure_covered_clues()
     # links_list = []
