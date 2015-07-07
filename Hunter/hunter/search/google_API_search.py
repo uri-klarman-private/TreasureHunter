@@ -224,9 +224,9 @@ def measure_covered_clues():
     dicts = dictionaries.load_dictionaries(config)
     keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
 
-    # super_dict = create_super_dict(keywords)
-    with open(super_dict_path, 'rb') as myfile:
-        super_dict = pickle.load(myfile)
+    super_dict = create_super_dict(keywords)
+    # with open(super_dict_path, 'rb') as myfile:
+    #     super_dict = pickle.load(myfile)
 
     generator = gen_subsets_special(keywords, config.essence_len-1)
     success_count = 0
@@ -294,16 +294,19 @@ if __name__ == '__main__':
     # dicts = dictionaries.load_dictionaries(config)
     # get_links_from_google_API(config, dicts)
     #
-    parallel_create_links_essences_map(417000)
+    # parallel_create_links_essences_map(17000)
     #
     # measure_covered_clues()
     # links_list = []
     # links_set = set()
     # output = []
+    # remove_lines = 400000
     # with open(links_text_path, 'r') as f:
     #     lines = f.read().splitlines()
     #     print 'len(lines) is: ', len(lines)
-    #     for line in lines:
+    #     for i, line in enumerate(lines):
+    #         if i < remove_lines:
+    #             continue
     #         if not line:
     #             continue
     #         if line in links_set:
