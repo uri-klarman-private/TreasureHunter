@@ -294,23 +294,23 @@ if __name__ == '__main__':
     # dicts = dictionaries.load_dictionaries(config)
     # get_links_from_google_API(config, dicts)
     #
-    # parallel_create_links_essences_map(276000)
+    parallel_create_links_essences_map(417000)
     #
     # measure_covered_clues()
-    links_list = []
-    links_set = set()
-    output = []
-    with open(links_text_path, 'r') as f:
-        lines = f.read().splitlines()
-        print 'len(lines) is: ', len(lines)
-        for line in lines:
-            if not line:
-                continue
-            if line in links_set:
-                continue
-            links_set.add(line)
-            links_list.append(line)
-
-    print 'len(links_list): ', len(links_list)
-    with open(links_text_path, 'w') as f:
-        f.write('\n'.join(links_list))
+    # links_list = []
+    # links_set = set()
+    # output = []
+    # with open(links_text_path, 'r') as f:
+    #     lines = f.read().splitlines()
+    #     print 'len(lines) is: ', len(lines)
+    #     for line in lines:
+    #         if not line:
+    #             continue
+    #         if line in links_set:
+    #             continue
+    #         links_set.add(line)
+    #         links_list.append(line)
+    #
+    # print 'len(links_list): ', len(links_list)
+    # with open(links_text_path, 'w') as f:
+    #     f.write('\n'.join(links_list))
