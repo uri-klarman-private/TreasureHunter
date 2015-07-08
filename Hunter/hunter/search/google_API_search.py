@@ -1,5 +1,6 @@
 from multiprocessing import Pool, Manager
 import multiprocessing
+import random
 
 import requests
 
@@ -30,11 +31,11 @@ class GoogleSearch:
 
         self.params = {}
         self.params['alt'] = 'json'
-        self.params['key'] = 'AIzaSyDTZfn3N86ve0VivgQYT_2yVdiBW9HoeNU' #treasure hunter CSE
-        # self.params['key'] = 'AIzaSyDbdrd_CyQhtDS1Km_VdblVDqun6uyyFAI' #treasure hunter 2 CSE
+        # self.params['key'] = 'AIzaSyDTZfn3N86ve0VivgQYT_2yVdiBW9HoeNU' #treasure hunter CSE
+        self.params['key'] = 'AIzaSyDbdrd_CyQhtDS1Km_VdblVDqun6uyyFAI' #treasure hunter 2 CSE
         #
-        self.params['cx'] = '007456907743860748191:oj1who__t-g' #treasure hunter CSE
-        # self.params['cx'] = '004405701384112129294:onvr3tdk4-m' #treasure hunter 2 CSE
+        # self.params['cx'] = '007456907743860748191:oj1who__t-g' #treasure hunter CSE
+        self.params['cx'] = '004405701384112129294:onvr3tdk4-m' #treasure hunter 2 CSE
         # self.params['sort'] = 'date-sdate:a'
 
 
@@ -107,15 +108,20 @@ def get_links_from_google_API(config, dicts):
     links_set = set(links)
 
     keywords = [dicts.keywords[i] for i in range(len(dicts.keywords)/2)]
-    generator = gen_subsets_special(keywords, config.essence_len-1)
+    with open(super_dict_path, 'rb') as myfile:
+        super_dict = pickle.load(myfile)
+    keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
+    generator = gen_subsets_special(keywords, config.essence_len-3)
+    skew_generator = gen_subsets_special(keywords[:45], 3)
 
     google = GoogleSearch()
 
-    for i in range(2900):
-        searchwords = generator.next()
+    for i in range(2500):
+        searchwords = generator.next() + skew_generator.next()
+        random.choice(keywords_popularity[:45])
         google.new_search(searchwords)
         links = []
-        for i in range(40):
+        for j in range(40):
             link = google.next_link(avoid_more_searches=False)
             if not link:
                 break
@@ -228,6 +234,8 @@ def measure_covered_clues():
     # with open(super_dict_path, 'rb') as myfile:
     #     super_dict = pickle.load(myfile)
 
+    # keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
+
     generator = gen_subsets_special(keywords, config.essence_len-1)
     success_count = 0
     tries = 10000
@@ -290,11 +298,11 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dicts = dictionaries.load_dictionaries(config)
-    # get_links_from_google_API(config, dicts)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+    get_links_from_google_API(config, dicts)
     #
-    parallel_create_links_essences_map(17000)
+    # parallel_create_links_essences_map(17000)
     #
     # measure_covered_clues()
     # links_list = []
