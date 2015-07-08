@@ -112,7 +112,7 @@ def get_links_from_google_API(config, dicts):
         super_dict = pickle.load(myfile)
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
     generator = gen_subsets_special(keywords, config.essence_len-3)
-    skew_generator = gen_subsets_special(keywords[:25], 3)
+    skew_generator = gen_subsets_special(keywords[:20], 3)
 
     google = GoogleSearch()
 
@@ -233,7 +233,7 @@ def measure_covered_clues():
     # with open(super_dict_path, 'rb') as myfile:
     #     super_dict = pickle.load(myfile)
 
-    # keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
+    keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
 
     generator = gen_subsets_special(keywords, config.essence_len-1)
     success_count = 0
