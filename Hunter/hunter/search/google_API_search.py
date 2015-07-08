@@ -112,13 +112,12 @@ def get_links_from_google_API(config, dicts):
         super_dict = pickle.load(myfile)
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
     generator = gen_subsets_special(keywords, config.essence_len-3)
-    skew_generator = gen_subsets_special(keywords[:45], 3)
+    skew_generator = gen_subsets_special(keywords[:25], 3)
 
     google = GoogleSearch()
 
     for i in range(2500):
-        searchwords = generator.next() + skew_generator.next()
-        random.choice(keywords_popularity[:45])
+        searchwords = generator.next().union(skew_generator.next())
         google.new_search(searchwords)
         links = []
         for j in range(40):
