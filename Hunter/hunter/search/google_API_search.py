@@ -31,9 +31,8 @@ class GoogleSearch:
 
         self.params = {}
         self.params['alt'] = 'json'
-        self.params['key'] = 'AIzaSyDbdrd_CyQhtDS1Km_VdblVDqun6uyyFAI' #treasure hunter 2 CSE
-
-        self.params['cx'] = '004405701384112129294:onvr3tdk4-m' #treasure hunter 2 CSE
+        self.params['key'] = 'AIzaSyAYb0pxfNBnkHm4h04v-T1xAIndPY9yyGs' #treasure hunter 3 CSE
+        self.params['cx'] = '017395439935796638359:y8y2s6__y-c' #treasure hunter 3 CSE
         # self.params['sort'] = 'date-sdate:a'
 
 
@@ -227,9 +226,9 @@ def measure_covered_clues():
     dicts = dictionaries.load_dictionaries(config)
     keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
 
-    super_dict = create_super_dict(keywords)
-    # with open(super_dict_path, 'rb') as myfile:
-    #     super_dict = pickle.load(myfile)
+    # super_dict = create_super_dict(keywords)
+    with open(super_dict_path, 'rb') as myfile:
+        super_dict = pickle.load(myfile)
 
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
 
@@ -298,10 +297,10 @@ if __name__ == '__main__':
     # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     # dicts = dictionaries.load_dictionaries(config)
     # get_links_from_google_API(config, dicts)
-
-    parallel_create_links_essences_map(325000)
-
-    # measure_covered_clues()
+    #
+    # parallel_create_links_essences_map(325000)
+    #
+    measure_covered_clues()
     # links_list = []
     # links_set = set()
     # output = []
