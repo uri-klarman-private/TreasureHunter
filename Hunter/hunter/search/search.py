@@ -11,7 +11,7 @@ import urlparse
 from datetime import datetime,timedelta
 import requests
 from selenium import webdriver
-from hunter.dictionary.dictionaries import resources_path
+from Hunter.hunter.dictionary.dictionaries import resources_path
 
 
 time_between_searches = 10

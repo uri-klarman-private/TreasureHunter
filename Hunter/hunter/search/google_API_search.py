@@ -3,9 +3,7 @@ import multiprocessing
 import random
 
 import requests
-
-from Hunter.hunter.dictionary import dictionaries
-from Hunter.hunter.dictionary.combinations_provider import gen_subsets_special
+from Hunter.hunter.dictionary import dictionaries, combinations_provider
 from Hunter.hunter.distillery import Distillery
 import cPickle as pickle
 from os import path
@@ -109,8 +107,8 @@ def get_links_from_google_API(config, dicts):
     with open(super_dict_path, 'rb') as myfile:
         super_dict = pickle.load(myfile)
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
-    generator = gen_subsets_special(keywords, config.essence_len-3)
-    skew_generator = gen_subsets_special(keywords[:20], 3)
+    generator = combinations_provider.gen_subsets_special(keywords, config.essence_len-3)
+    skew_generator = combinations_provider.gen_subsets_special(keywords[:20], 3)
 
     google = GoogleSearch()
 
@@ -233,7 +231,7 @@ def measure_covered_clues():
 
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
 
-    generator = gen_subsets_special(keywords, config.essence_len-1)
+    generator = combinations_provider.gen_subsets_special(keywords, config.essence_len-1)
     success_count = 0
     tries = 10000
     for i in range(tries):
@@ -295,13 +293,13 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dicts = dictionaries.load_dictionaries(config)
-    # get_links_from_google_API(config, dicts)
+    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    dicts = dictionaries.load_dictionaries(config)
+    get_links_from_google_API(config, dicts)
     #
     # parallel_create_links_essences_map(325000)
     #
-    measure_covered_clues()
+    # measure_covered_clues()
     # links_list = []
     # links_set = set()
     # output = []

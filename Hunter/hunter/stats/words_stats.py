@@ -1,5 +1,5 @@
 from datetime import datetime
-from hunter.dictionary.dictionaries import resources_path
+from Hunter.hunter.dictionary.dictionaries import resources_path
 
 __author__ = 'uriklarman'
 import cPickle as pickle

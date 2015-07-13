@@ -8,11 +8,11 @@ import random
 import math
 import itertools
 
-from hunter.dictionary import dictionaries
-from hunter.dictionary.dictionaries import resources_path
-from search.search import Search
-from stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
-from distillery import Distillery
+from Hunter.hunter.dictionary import dictionaries
+from Hunter.hunter.dictionary.dictionaries import resources_path
+from Hunter.hunter.search.search import Search
+from Hunter.hunter.stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
+from Hunter.hunter.distillery import Distillery
 from matplotlib import pyplot as plt
 
 __author__ = 'uriklarman'
