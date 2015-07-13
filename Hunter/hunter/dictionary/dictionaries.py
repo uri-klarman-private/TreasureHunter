@@ -7,7 +7,7 @@ from os import path
 import math
 from random import shuffle, Random
 
-from Hunter.hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
+from hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
 
 
 __author__ = 'uriklarman'

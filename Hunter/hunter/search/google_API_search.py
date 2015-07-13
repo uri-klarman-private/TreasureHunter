@@ -3,8 +3,8 @@ import multiprocessing
 import random
 
 import requests
-from Hunter.hunter.dictionary import dictionaries, combinations_provider
-from Hunter.hunter.distillery import Distillery
+from hunter.dictionary import dictionaries, combinations_provider
+from hunter.distillery import Distillery
 import cPickle as pickle
 from os import path
 
@@ -30,7 +30,7 @@ class GoogleSearch:
 
         self.params = {}
         self.params['alt'] = 'json'
-        self.params['key'] = 'AIzaSyBoS0rQUrH7H_Z0Pndj0iquyJhGQuZnpvQ' #treasure hunter 4 CSE
+        self.params['key'] = 'AIzaSyB_reb8S7NP3EEpJ7emTu2WKRAKJLq_OxI' #treasure hunter 4 CSE
         self.params['cx'] = '006793815953871747260:ptq30f__rqw' #treasure hunter 4 CSE
         # self.params['sort'] = 'date-sdate:a'
 
