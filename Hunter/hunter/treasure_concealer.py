@@ -60,6 +60,7 @@ def find_link(words, link_i, search_engine, distillery, dicts, threshold, filter
             link_i += 1
             distill_success, essence, uncut_essence = distill_link(link, distillery, dicts)
             link_found = distill_success and len(uncut_essence) <= max_essence_size and set(words).issubset(set(essence))
+            stats.update(link_i, link, words, threshold, essence, uncut_essence)
             if link_found or link_i >= threshold:
                 return link_found, link_i, link, essence
 
@@ -231,6 +232,6 @@ def print_stats_and_stuff():
 if __name__ == '__main__':
     tweet_file = 'tweet_CO_09.txt'
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    dictionaries.create_and_save_dicts(config)
+    # dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'

@@ -1,5 +1,5 @@
 from datetime import datetime
-from Hunter.hunter.dictionary.dictionaries import resources_path
+from hunter.dictionary.dictionaries import resources_path
 
 __author__ = 'uriklarman'
 import cPickle as pickle
@@ -18,10 +18,10 @@ class WordsStats:
         print 'stats file name is: ', self.filename
 
     def update(self, link_i, link, words, threshold, essence, uncut_essence):
-        self.update_encoding_flow(link_i, link, words, threshold, essence, uncut_essence)
+        self.__update_encoding_flow(link_i, link, words, threshold, essence, uncut_essence)
         self.save_stats()
 
-    def update_encoding_flow(self, link_i, link, words, threshold, essence, uncut_essence):
+    def __update_encoding_flow(self, link_i, link, words, threshold, essence, uncut_essence):
         words_set = set(words)
         essence_set = set(essence)
         uncut_essence_set = set(uncut_essence)
