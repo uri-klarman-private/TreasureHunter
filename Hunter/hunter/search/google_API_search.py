@@ -4,13 +4,14 @@ import random
 
 import requests
 
-from hunter.dictionary import dictionaries
-from hunter.dictionary.combinations_provider import gen_subsets_special
-from hunter.distillery import Distillery
+from Hunter.hunter.dictionary import dictionaries
+from Hunter.hunter.dictionary.combinations_provider import gen_subsets_special
+from Hunter.hunter.distillery import Distillery
 import cPickle as pickle
 from os import path
 
 import json
+
 
 
 __author__ = 'uriklarman'
@@ -223,12 +224,12 @@ def out_queue_to_dict(out_queue):
 
 def measure_covered_clues():
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    dicts = dictionaries.load_dictionaries(config)
+    dicts = dictionaries.create_and_save_dicts(config)
     keywords = sorted([dicts.keywords[i] for i in range(len(dicts.keywords)/2)])
 
-    # super_dict = create_super_dict(keywords)
-    with open(super_dict_path, 'rb') as myfile:
-        super_dict = pickle.load(myfile)
+    super_dict = create_super_dict(keywords)
+    # with open(super_dict_path, 'rb') as myfile:
+    #     super_dict = pickle.load(myfile)
 
     keywords_popularity = sorted([(x, len(super_dict[x])) for x in keywords],key=lambda x: x[1])
 
