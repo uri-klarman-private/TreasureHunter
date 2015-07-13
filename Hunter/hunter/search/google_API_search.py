@@ -30,8 +30,8 @@ class GoogleSearch:
 
         self.params = {}
         self.params['alt'] = 'json'
-        self.params['key'] = 'AIzaSyAYb0pxfNBnkHm4h04v-T1xAIndPY9yyGs' #treasure hunter 3 CSE
-        self.params['cx'] = '017395439935796638359:y8y2s6__y-c' #treasure hunter 3 CSE
+        self.params['key'] = 'AIzaSyBoS0rQUrH7H_Z0Pndj0iquyJhGQuZnpvQ' #treasure hunter 4 CSE
+        self.params['cx'] = '006793815953871747260:ptq30f__rqw' #treasure hunter 4 CSE
         # self.params['sort'] = 'date-sdate:a'
 
 
