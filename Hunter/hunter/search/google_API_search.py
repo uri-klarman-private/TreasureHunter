@@ -293,13 +293,13 @@ def create_super_dict(keywords):
 
 
 if __name__ == '__main__':
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    dicts = dictionaries.load_dictionaries(config)
-    get_links_from_google_API(config, dicts)
+    # config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+    # dicts = dictionaries.load_dictionaries(config)
+    # get_links_from_google_API(config, dicts)
     #
-    # parallel_create_links_essences_map(325000)
-    #
-    # measure_covered_clues()
+    # parallel_create_links_essences_map(135000)
+
+    measure_covered_clues()
     # links_list = []
     # links_set = set()
     # output = []
