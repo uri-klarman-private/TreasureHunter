@@ -58,7 +58,7 @@ class Distillery:
         self.browser.set_script_timeout(self.page_load_timeout) # seconds
         self.browser.set_page_load_timeout(self.page_load_timeout+1)
 
-    def distill(self, link, return_all_content=False):
+    def distill(self, link):
         open_browser_duration = datetime.now() - self.last_browser_restart_time
         if open_browser_duration.total_seconds() > 120:
             self.restart_browser()
@@ -86,14 +86,5 @@ class Distillery:
         # shuffling according to link
         rand = Random(link)
         rand.shuffle(uncut_essence)
-        essence = uncut_essence[:self.essence_len]
 
-        if return_all_content:
-            indexes = []
-            for word in essence:
-                word_indices = [i for i, x in enumerate(visible_words) if x == word]
-                rand.seed(link)
-                indexes.append(rand.choice(word_indices))
-            return essence, uncut_essence, indexes, ' '.join(visible_words)
-        else:
-            return essence, uncut_essence
+        return uncut_essence[:self.essence_len], uncut_essence

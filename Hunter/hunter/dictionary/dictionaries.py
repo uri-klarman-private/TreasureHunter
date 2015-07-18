@@ -26,53 +26,41 @@ last_english_line = 844587
 
 
 class Dicts:
-    def __init__(self, keywords_dict, english_dict):
+    def __init__(self, keywords_dict, english_dict, links_dict):
         self.keywords = keywords_dict
         self.english = english_dict
-        # self.links = links_dict
+        self.links = links_dict
 
 
 class Config:
-    def __init__(self, x, sentence_len, essence_len, link_len):
+    def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0):
+        self.d = d
+        self.l = l
+        self.f = f
         self.x = x
-        self.sentence_len = sentence_len
-        self.essence_len = essence_len
-        self.link_len = link_len
-        self.shuffle_keywords_seed = False
+        self.shuffle_keywords_seed = shuffle_keywords_seed
+        if shuffle_stop < x:
+            self.shuffle_stop = x
+        else:
+            self.shuffle_stop = shuffle_stop
 
-
-    # def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0):
-    #     self.d = d
-    #     self.l = l
-    #     self.f = f
-    #     self.x = x
-    #     self.shuffle_keywords_seed = shuffle_keywords_seed
-    #     if shuffle_stop < x:
-    #         self.shuffle_stop = x
-    #     else:
-    #         self.shuffle_stop = shuffle_stop
-    #
-    #     self.w = d + l + f
-    #     self.essence_len = int(math.pow(x, float(f) / self.w))
+        self.w = d + l + f
+        self.essence_len = int(math.pow(x, float(f) / self.w))
 
     def params_tuple(self):
-        # return self.d, self.l, self.f, self.x
-        return self.x, self.sentence_len, self.essence_len, self.link_len
+        return self.d, self.l, self.f, self.x
 
 
 def create_dictionaries(config):
     keywords_dict = create_keywords_dict(config)
-    if config.x > 550:
-        english_dict = create_english_dict(config, keywords_dict, keywords_per_word=2)
-    elif config.x > 83:
-        english_dict = create_english_dict(config, keywords_dict, keywords_per_word=3)
+    if config.x > 83:
+        english_dict = create_english_dict(config, keywords_dict)
     else:
         english_dict = create_english_dict(config, keywords_dict, keywords_per_word=4)
 
-    # links_dict = create_links_dictionary(config, keywords_dict)
+    links_dict = create_links_dictionary(config, keywords_dict)
 
-    # dicts = Dicts(keywords_dict, english_dict, links_dict)
-    dicts = Dicts(keywords_dict, english_dict)
+    dicts = Dicts(keywords_dict, english_dict, links_dict)
     return dicts
 
 
@@ -159,7 +147,7 @@ def save_dictionaries(dicts, config):
         pickle.dump(dicts.keywords, f)
     with open(english_dict_path % config.params_tuple(), 'w') as f:
         pickle.dump(dicts.english, f)
-    # save_links_dict(dicts.links, config)
+    save_links_dict(dicts.links, config)
 
 
 def save_links_dict(links_dict, config):
@@ -174,13 +162,12 @@ def load_dictionaries(config):
                 keywords_dict = pickle.load(f)
             with open(english_dict_path % config.params_tuple(), 'r') as f:
                 english_dict = pickle.load(f)
-            # with open(links_dict_path % config.params_tuple(), 'r') as f:
-            #     links_dict = pickle.load(f)
+            with open(links_dict_path % config.params_tuple(), 'r') as f:
+                links_dict = pickle.load(f)
             break
         except Exception as inst:
             print traceback.format_exc()
-    # dicts = Dicts(keywords_dict, english_dict, links_dict)
-    dicts = Dicts(keywords_dict, english_dict)
+    dicts = Dicts(keywords_dict, english_dict, links_dict)
     return dicts
 
 
