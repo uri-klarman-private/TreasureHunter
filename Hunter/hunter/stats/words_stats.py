@@ -17,15 +17,14 @@ class WordsStats:
         self.filename = 'stats_%d_%d_%d_%d_%d_%s_%s.pkl'%(config.d, config.l, config.f, config.x, config.shuffle_keywords_seed, tweet_file, str(datetime.now()))
         print 'stats file name is: ', self.filename
 
-    def update(self, link_i, link, words, threshold, essence, uncut_essence):
-        self.__update_encoding_flow(link_i, link, words, threshold, essence, uncut_essence)
+    def update(self, link_i, link, link_found, words, threshold, essence, uncut_essence):
+        self.__update_encoding_flow(link_i, link, link_found, words, threshold, essence, uncut_essence)
         self.save_stats()
 
-    def __update_encoding_flow(self, link_i, link, words, threshold, essence, uncut_essence):
+    def __update_encoding_flow(self, link_i, link, link_found, words, threshold, essence, uncut_essence):
         words_set = set(words)
         essence_set = set(essence)
         uncut_essence_set = set(uncut_essence)
-        link_found = words_set.issubset(essence_set)
         words_in_essence = words_set.intersection(essence_set)
         words_in_uncut_essence = words_set.intersection(uncut_essence_set)
 

@@ -6,21 +6,17 @@ import os
 import signal
 import random
 import math
-import itertools
 
 from hunter.dictionary import dictionaries
 from hunter.dictionary.dictionaries import resources_path
-from hunter.search.search import Search
-from hunter.stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
-from hunter.distillery import Distillery
+from search.search import Search
+from stats.words_stats import WordsStats, print_stats, stats_dir_path, load_stats
+from distillery import Distillery
 from matplotlib import pyplot as plt
 
 __author__ = 'uriklarman'
 
-forward_threshold = 600
-sidestep_threshold = 10000
-link_words_threshold = 100
-max_essence_size = 20
+sidestep_threshold = 600
 tweets_path = dictionaries.resources_path + 'tweets/'
 final_stats_dir_path = resources_path + 'final_stats/'
 
@@ -29,94 +25,100 @@ def timeout_handler(signum, frame):
     print('distillery timed out with signal', signum)
     raise RuntimeError("distillery timed out")
 
+def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
-def distill_link(link, distillery, dicts):
-    try:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(15)
-        essence, uncut_essence = distillery.distill(link)
-        signal.alarm(0)
-        return True, essence, uncut_essence
-
-    except RuntimeError as r:
-        signal.alarm(0)
-        print(traceback.format_exc())
-        distillery.restart_browser()
-    except BaseException as b:
-        signal.alarm(0)
-        print(traceback.format_exc())
-        print 'Failed to distill - some other error!!!. trying again...'
-        distillery.restart_browser()
-    return False, [], []
-
-
-def find_link(words, link_i, search_engine, distillery, dicts, threshold, filter_search, stats):
-    links_list, next_url = search_engine.new_search(words, filter_search)
+    links_list, next_url = links_list, next_url = search_engine.new_search(words, words[0] != words[1])
+    link_i = 0
     link_found = False
-    while True:
+    while link_i < threshold:
         for link in links_list:
-            if 'pdf' in link or 'github' in link:
+
+            if 'pdf' in link or 'datalounge' in link or 'github' in link or 'ufdc.ufl.edu' in link:
                 continue
+
             link_i += 1
-            distill_success, essence, uncut_essence = distill_link(link, distillery, dicts)
-            link_found = distill_success and len(uncut_essence) <= max_essence_size and set(words).issubset(set(essence))
-            stats.update(link_i, link, words, threshold, essence, uncut_essence)
+            while True:
+                try:
+                    signal.signal(signal.SIGALRM, timeout_handler)
+                    signal.alarm(15)
+                    essence, uncut_essence = distillery.distill(link)
+                    signal.alarm(0)
+                    break
+
+                except RuntimeError as r:
+                    signal.alarm(0)
+                    print(traceback.format_exc())
+                    print 'Failed to distill (RuntimeError). trying again...'
+                    link = "http://google.com"
+                    distillery.restart_browser()
+                except BaseException as b:
+                    signal.alarm(0)
+                    print(traceback.format_exc())
+                    print 'Failed to distill - some other error!!!. trying again...'
+                    link = "http://google.com"
+                    continue_loop = True
+                    if not continue_loop:
+                        break
+                    distillery.restart_browser()
+
+            link_found = set(words).issubset(set(essence)) and len(essence) >= 4
+            stats.update(link_i, link, link_found, words, threshold, essence, uncut_essence)
+
             if link_found or link_i >= threshold:
-                return link_found, link_i, link, essence
+                break
+        if link_found or link_i >= threshold:
+            break
 
         if next_url:
+            stop_trying = False
             try:
+                sleep(1)
                 links_list, next_url = search_engine.continuing_search(next_url)
             except Exception as inst:
-                print "Could not continue search. given next_url: '%s'" % next_url
                 print(traceback.format_exc())
-                return link_found, link_i, link, essence
+                stop_trying = True
         else:
-            print "Could not continue search. given next_url: '%s'" % next_url
-            return link_found, link_i, link, essence
+            stop_trying = True
+
+        if stop_trying:
+            print '!'*30
+            print "Could not continue search. given next_url: '%s'"%(next_url)
+            print '!'*30
+            link_found, link_i, link, essence = (False, 0, '', [])
+            break
+
+    return link_found, link, essence
 
 
-def find_link_and_link_words(words, search_engine, distillery, dicts, stats, threshold, filter_search):
-    link_i = 0
-    while link_i < forward_threshold:
-        link_found, link_i, link, essence = find_link(words, link_i, search_engine, distillery, dicts, threshold, filter_search, stats)
-        if link_found:
-            for link_words in itertools.combinations(words, config.l):
-                link_words_match_link = match_link_words_to_link(link, link_words, search_engine)
-                if link_words_match_link:
-                    return True, essence, link_words, link
-    return False, [], [], ''
+def conceal_step(data_words, words, first_link_word, insert_link_word_in_d, choose_new_link_word, search_engine,
+                 distillery, dicts, stats):
 
+    if insert_link_word_in_d:
+        data_words.insert(words, 0)
+        words[0] = first_link_word
 
-def match_link_words_to_link(link, link_words, search_engine):
-    tries = 0
-    links_list, next_url = search_engine.new_search(link_words, do_filter=True)
-    while tries < link_words_threshold:
-        if link in links_list:
-            return True
-        else:
-            tries += len(links_list)
-            links_list, next_url = search_engine.continuing_search(next_url)
-    return False
+    link_found, link, essence = find_link(words, search_engine, distillery, dicts, stats, sidestep_threshold)
 
-
-def conceal_step(data_words, words, search_engine, distillery, dicts, stats):
-    forward_link_found, essence, link_words, link = find_link_and_link_words(words, search_engine, distillery, dicts, stats, forward_threshold, True)
-    if forward_link_found:
+    if link_found:
         next_words = [data_words.pop()]
-        next_words += link_words
-        next_words += dictionaries.indexes_to_f_keywords([essence.index(w) for w in words], dicts.keywords, config)
     else:
-        sidestep_link_found, essence, link_words, link = find_link_and_link_words(words[1:], search_engine, distillery, dicts, stats, sidestep_threshold, False)
-        if sidestep_link_found:
-            next_words = [words[0]]
-            next_words += link_words
-            next_words += dictionaries.indexes_to_f_keywords([essence.index(w) for w in words], dicts.keywords, config)
-        else:
+        # save D-word for next attempt, and copy L1-word into D-word
+        next_words = [words[0]]
+        words[0] = words[1]
+
+        sidestep_found, link, essence = find_link(words, search_engine, distillery, dicts, stats)
+        if not sidestep_found:
             print 'oh boy... No link was found for side stepping.'
 
-    return next_words, link
+    if link not in dicts.links:
+        dictionaries.add_link_to_links_file(link, first_link_word, choose_new_link_word, essence, dicts, config)
 
+    link_words = dicts.links[link]
+    first_link_word = link_words[0]
+    next_words += link_words[1:]
+    next_words += dictionaries.indexes_to_f_keywords([essence.index(w) for w in words], dicts.keywords, config)
+
+    return next_words, link, first_link_word
 
 def conceal(tweet_file, config, endword_index=False):
     dicts = dictionaries.load_dictionaries(config)
@@ -135,17 +137,31 @@ def conceal(tweet_file, config, endword_index=False):
     collected_words = [(words, '')]
     stats = WordsStats(config, tweet_file, collected_words)
 
-    while True:
-        try:
-            words, link = conceal_step(data_words, words, search_engine, distillery, dicts, stats)
-            collected_words.append((words, link))
+    try:
+        while True:
+            iteration_type = len(collected_words) % 10
+            if iteration_type == 0:
+                insert_link_word_in_d = True
+                choose_new_link_word = False
+            elif iteration_type == 1:
+                first_link_word = 'This string is ignored'
+                insert_link_word_in_d = False
+                choose_new_link_word = True
+            else:
+                insert_link_word_in_d = False
+                choose_new_link_word = False
+
+            words, link, first_link_word = conceal_step(data_words, words, first_link_word, insert_link_word_in_d,
+                                                        choose_new_link_word, search_engine, distillery, dicts, stats)
+            collected_words.append((words, link, first_link_word,))
             if not data_words:
                 break
 
-        except Exception:
-            print(traceback.format_exc())
-            t, v, tb = sys.exc_info()
-            # raise t, v, tb
+    except Exception:
+        print(traceback.format_exc())
+        t, v, tb = sys.exc_info()
+        # distillery.browser.close()
+        raise t, v, tb
 
     print "collected words are: %s" % collected_words
     return collected_words
@@ -232,6 +248,6 @@ def print_stats_and_stuff():
 if __name__ == '__main__':
     tweet_file = 'tweet_CO_09.txt'
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
-    # dictionaries.create_and_save_dicts(config)
+    dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'

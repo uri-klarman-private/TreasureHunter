@@ -64,15 +64,21 @@ class Search:
         self.page_load_timeout = page_load_timeout
         self.prev_search_time = datetime.now()
         self.last_browser_restart_time = datetime.now()
-        self.start_browser()
+        self.restart_browser()
 
     def restart_browser(self):
-        try:
-            self.browser.quit()
-        except:
-            print 'failed to quit browser'
-        time.sleep(1)
-        self.start_browser()
+        while True:
+            try:
+                self.browser.quit()
+            except:
+                print 'failed to quit browser'
+            time.sleep(1)
+            try:
+                self.start_browser()
+            except:
+                print 'failed to start browser'
+                continue
+            break
 
     def start_browser(self):
         self.last_browser_restart_time = datetime.now()

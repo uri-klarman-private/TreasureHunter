@@ -5,7 +5,7 @@ import itertools
 import traceback
 from os import path
 import math
-from random import shuffle, Random
+from random import shuffle, seed, Random
 
 from hunter.dictionary.combinations_provider import pseudo_random_combinations, create_ordered_combinations
 
@@ -118,24 +118,37 @@ def create_english_dict(config, keywords_dict, keywords_per_word=3):
 
 
 def create_links_dictionary(config, keywords_dict):
-    link_combinations = pseudo_random_combinations(range(config.x), config.l, 100000, avoid_all_combinations=True)
     links_dict = {}
     with open(links_path % config.params_tuple()) as f:
-        combination_i = 0
         for line in f:
-            link = line.strip()
-            while link_combinations[combination_i][0] == link_combinations[combination_i][1]:
-                combination_i += 1
-            keywords_combination = tuple(keywords_dict[index] for index in link_combinations[combination_i])
-            links_dict[link] = keywords_combination
-            links_dict[keywords_combination] = link
-            combination_i += 1
+            args = line.strip().split(',')
+            link = args[0]
+            link_words = tuple(args[1:])
+            links_dict[link] = link_words
+            links_dict[link_words] = link
     return links_dict
 
 
-def add_link_to_links_file(link_str, dicts, config):
+def choose_link_words(first_link_word, choose_new_link_word, essence):
+    shuffle(essence)
+    if choose_new_link_word:
+        return tuple(essence[:3])
+    else:
+        return (first_link_word, essence[0], essence[1])
+
+
+
+def add_link_to_links_file(link_str, first_link_word, choose_new_link_word, essence, dicts, config):
+    seed(link_str)
+    link_words = choose_link_words(first_link_word, choose_new_link_word, essence)
+    while link_words in dicts.links:
+        link_words = choose_link_words(first_link_word, choose_new_link_word, essence)
+
+    new_links_entry = '\n%s,%s' % (link_str, ','.join(link_words))
+
     with open(links_path % config.params_tuple(), 'a') as f:
-        f.write("\n" + link_str)
+        f.write(new_links_entry)
+
     links_dict = create_links_dictionary(config, dicts.keywords)
     save_links_dict(links_dict, config)
     dicts.links = links_dict
