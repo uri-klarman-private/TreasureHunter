@@ -25,9 +25,9 @@ def timeout_handler(signum, frame):
     print('distillery timed out with signal', signum)
     raise RuntimeError("distillery timed out")
 
-def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
-    links_list, next_url = links_list, next_url = search_engine.new_search(words, words[0] != words[1])
+def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
+    links_list, next_url = search_engine.new_search(words, words[0] != words[1])
     link_i = 0
     link_found = False
     while link_i < threshold:
@@ -61,7 +61,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                         break
                     distillery.restart_browser()
 
-            link_found = set(words).issubset(set(essence)) and len(essence) >= 4
+            link_found = set(words).issubset(set(essence)) and 4 <= len(essence) <= 18
             stats.update(link_i, link, link_found, words, threshold, essence, uncut_essence)
 
             if link_found or link_i >= threshold:
@@ -81,9 +81,9 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
             stop_trying = True
 
         if stop_trying:
-            print '!'*30
-            print "Could not continue search. given next_url: '%s'"%(next_url)
-            print '!'*30
+            print '!' * 30
+            print "Could not continue search. given next_url: '%s'" % (next_url)
+            print '!' * 30
             link_found, link_i, link, essence = (False, 0, '', [])
             break
 
@@ -92,7 +92,6 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
 
 def conceal_step(data_words, words, first_link_word, insert_link_word_in_d, choose_new_link_word, search_engine,
                  distillery, dicts, stats):
-
     if insert_link_word_in_d:
         data_words.insert(words, 0)
         words[0] = first_link_word
@@ -120,6 +119,7 @@ def conceal_step(data_words, words, first_link_word, insert_link_word_in_d, choo
 
     return next_words, link, first_link_word
 
+
 def conceal(tweet_file, config, endword_index=False):
     dicts = dictionaries.load_dictionaries(config)
     print 'keywords (x) = ', config.x
@@ -127,19 +127,24 @@ def conceal(tweet_file, config, endword_index=False):
     distillery = Distillery(config.essence_len, dicts.keywords)
     search_engine = Search()
     raw_data_words = open(tweets_path + tweet_file).read().split()
-    data_words = [keyword for word in raw_data_words for keyword in dicts.english["".join(c for c in word.lower() if c not in ('!', '.', ':', ',', '?', '"', '-'))]]
+    data_words = [keyword for word in raw_data_words for keyword in
+                  dicts.english["".join(c for c in word.lower() if c not in ('!', '.', ':', ',', '?', '"', '-'))]]
 
     if endword_index:
         words = [dicts.keywords[endword_index]] * config.w
     else:
         words = [dicts.keywords[config.x - 1]] * config.w
 
-    collected_words = [(words, '')]
+    collected_words = [(words, '', '')]
     stats = WordsStats(config, tweet_file, collected_words)
 
     try:
         while True:
-            iteration_type = len(collected_words) % 10
+
+            # Avoid inserting 3rd link word in data
+            # iteration_type = len(collected_words) % 10
+            iteration_type = 1
+
             if iteration_type == 0:
                 insert_link_word_in_d = True
                 choose_new_link_word = False
@@ -150,6 +155,7 @@ def conceal(tweet_file, config, endword_index=False):
             else:
                 insert_link_word_in_d = False
                 choose_new_link_word = False
+
 
             words, link, first_link_word = conceal_step(data_words, words, first_link_word, insert_link_word_in_d,
                                                         choose_new_link_word, search_engine, distillery, dicts, stats)
@@ -177,19 +183,21 @@ def print_stats_and_stuff():
         print run_stats.encoding_flow[-1]
         runs.append(run_stats)
 
+    # [[x[:9] for x in run_stats.encoding_flow if x[2]] for run_stats in runs]
     run_deltas = []
     for run in runs:
 
         times = [datetime.strptime(x[-1], '%Y-%m-%d %H:%M:%S.%f') for x in run.encoding_flow]
         deltas = [timedelta(seconds=0)]
-        deltas += [times[i] - times[i-1] for i in range(1, len(run.encoding_flow))]
+        deltas += [times[i] - times[i - 1] for i in range(1, len(run.encoding_flow))]
         threshold = timedelta(seconds=60)
         large_deltas_i = [i for i in range(len(deltas)) if deltas[i] > threshold]
 
-        change_steps = [i for i in range(len(run.encoding_flow)-1) if run.encoding_flow[i][0] != run.encoding_flow[i+1][0]]
+        change_steps = [i for i in range(len(run.encoding_flow) - 1) if
+                        run.encoding_flow[i][0] != run.encoding_flow[i + 1][0]]
         forward_steps = [i for i in change_steps if run.encoding_flow[i][3] == 'forward']
         tmp_forwrd = [0] + forward_steps
-        forward_deltas = [times[tmp_forwrd[i]] - times[tmp_forwrd[i-1]] for i in range(1, len(tmp_forwrd))]
+        forward_deltas = [times[tmp_forwrd[i]] - times[tmp_forwrd[i - 1]] for i in range(1, len(tmp_forwrd))]
 
         fwd_delta_without_large_deltas = []
         for step_i in range(len(forward_steps)):
@@ -197,7 +205,7 @@ def print_stats_and_stuff():
             if step_i == 0:
                 prev_step = 0
             else:
-                prev_step = forward_steps[step_i-1]
+                prev_step = forward_steps[step_i - 1]
             relevant_large_deltas_i = [i for i in large_deltas_i if i > prev_step and i <= step]
             time_to_reduce = timedelta(seconds=0)
             for relevant_i in relevant_large_deltas_i:
@@ -218,7 +226,7 @@ def print_stats_and_stuff():
     for i in range(max_time + 2):
         cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
     # for i in range(24):
-    #     cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
+    # cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
 
     # plt.axis([0, 24, 0., 1.1])
     plt.plot(cdf, '-r')
@@ -230,7 +238,7 @@ def print_stats_and_stuff():
 
     steps_times = []
     for run in run_deltas:
-        steps_times += [x.total_seconds()/60.0 for x in run]
+        steps_times += [x.total_seconds() / 60.0 for x in run]
 
     max_time = int(math.ceil(max(steps_times)))
     cdf = []
@@ -246,6 +254,7 @@ def print_stats_and_stuff():
 
 
 if __name__ == '__main__':
+    # print_stats_and_stuff()
     tweet_file = 'tweet_CO_09.txt'
     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
     dictionaries.create_and_save_dicts(config)
