@@ -61,7 +61,8 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                         break
                     distillery.restart_browser()
 
-            link_found = set(words).issubset(set(essence)) and 4 <= len(essence) <= 18
+            # link_found = set(words).issubset(set(essence)) and 4 <= len(essence) <= 18
+            link_found = set(words).issubset(set(essence)) and 9 <= len(essence)
             stats.update(link_i, link, link_found, words, threshold, essence, uncut_essence)
 
             if link_found or link_i >= threshold:
@@ -173,6 +174,26 @@ def conceal(tweet_file, config, endword_index=False):
     return collected_words
 
 
+# def can_we_find_links_in_google():
+#     config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+#     dicts = dictionaries.load_dictionaries(config)
+#     distillery = Distillery(config.essence_len, dicts.keywords)
+#     search_engine = Search()
+#
+#     total = 0
+#     false_positives = 0
+#     link_found = False
+#
+#     for key, value in dicts.links.iteritems():
+#         links_list, next_url = search_engine.new_search(key, do_filter=False)
+#
+#         while not link_found:
+#             for link in links_list:
+#                 if link == value:
+#                     pass
+#         print key, value
+
+
 def print_stats_and_stuff():
     all_files = os.listdir(final_stats_dir_path)
 
@@ -255,8 +276,11 @@ def print_stats_and_stuff():
 
 if __name__ == '__main__':
     # print_stats_and_stuff()
-    tweet_file = 'tweet_CO_09.txt'
-    config = dictionaries.Config(1, 2, 2, 89, 10, 200)
+
+    # can_we_find_links_in_google()
+
+    tweet_file = 'tweet_CO_01.txt'
+    config = dictionaries.Config(1, 2, 2, 243)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'
