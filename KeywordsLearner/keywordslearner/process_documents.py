@@ -61,7 +61,7 @@ def create_lda_model():
     keys = dictionary.keys()
     logging.info('dict size before filter: %s', len(keys))
     dictionary.filter_extremes(keep_n=150000)
-    dictionary.filter_extremes(no_below=750, no_above=0.1)
+    dictionary.filter_extremes(no_below=150, no_above=0.05)
     keys = dictionary.keys()
     logging.info('dict size after filter: %s', len(keys))
     dictionary.save('./resources/LDA_processing/lda.dict')
