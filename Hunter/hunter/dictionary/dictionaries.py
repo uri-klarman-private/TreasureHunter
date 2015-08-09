@@ -33,16 +33,16 @@ class Dicts:
 
 
 class Config:
-    def __init__(self, d, l, f, x, shuffle_keywords_seed=False, shuffle_stop=0):
+    def __init__(self, d, l, f, x, shuffle_keywords_seed=False):
         self.d = d
         self.l = l
         self.f = f
         self.x = x
         self.shuffle_keywords_seed = shuffle_keywords_seed
-        if shuffle_stop < x:
-            self.shuffle_stop = x
-        else:
-            self.shuffle_stop = shuffle_stop
+        # if shuffle_stop < x:
+        #     self.shuffle_stop = x
+        # else:
+        #     self.shuffle_stop = shuffle_stop
 
         self.w = d + l + f
         self.essence_len = int(math.pow(x, float(f) / self.w))
@@ -79,11 +79,11 @@ def create_keywords_dict(config):
                 continue
             keywords.append(word)
     if config.shuffle_keywords_seed:
-        print keywords
-        keywords = keywords[:config.shuffle_stop]
+        # print keywords
+        # keywords = keywords[:config.shuffle_stop]
         rand = Random(config.shuffle_keywords_seed)
         rand.shuffle(keywords)
-        print keywords
+        # print keywords
     keywords_dict = {}
     for i in range(config.x):
         keywords_dict[i] = keywords[i]
@@ -138,7 +138,8 @@ def choose_link_words(first_link_word, choose_new_link_word, essence):
 
 
 
-def add_link_to_links_file(link_str, first_link_word, choose_new_link_word, essence, dicts, config):
+def add_link_to_links_file(link_str, first_link_word, choose_new_link_word, words, essence, dicts, config):
+
     seed(link_str)
     link_words = choose_link_words(first_link_word, choose_new_link_word, essence)
     while link_words in dicts.links:

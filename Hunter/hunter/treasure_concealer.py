@@ -111,7 +111,7 @@ def conceal_step(data_words, words, first_link_word, insert_link_word_in_d, choo
             print 'oh boy... No link was found for side stepping.'
 
     if link not in dicts.links:
-        dictionaries.add_link_to_links_file(link, first_link_word, choose_new_link_word, essence, dicts, config)
+        dictionaries.add_link_to_links_file(link, first_link_word, choose_new_link_word, words, essence, dicts, config)
 
     link_words = dicts.links[link]
     first_link_word = link_words[0]
@@ -280,7 +280,7 @@ if __name__ == '__main__':
     # can_we_find_links_in_google()
 
     tweet_file = 'tweet_CO_01.txt'
-    config = dictionaries.Config(1, 2, 2, 243)
+    config = dictionaries.Config(1, 2, 2, 243, shuffle_keywords_seed=10)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'
