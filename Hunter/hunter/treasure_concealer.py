@@ -195,17 +195,41 @@ def conceal(tweet_file, config, endword_index=False):
 
 
 def print_stats_and_stuff():
-    all_files = os.listdir(final_stats_dir_path)
 
+    # all_files = os.listdir(final_stats_dir_path)
     runs = []
-    for filename in all_files:
-        run_stats = load_stats(filename, final_stats_dir_path)
-        print filename
-        print run_stats.encoding_flow[-1]
-        runs.append(run_stats)
+    run_deltas = []
+    # for filename in all_files:
+    #     run_stats = load_stats(filename, final_stats_dir_path)
+    #     print filename
+    #     print run_stats.encoding_flow[-1]
+    #     runs.append(run_stats)
+
+    # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 12:42:10.388835.pkl'
+    # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 14:57:23.195323.pkl'
+    # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 15:30:40.787954.pkl'
+    # filename = 'stats_1_2_2_3000_1_tweet_CO_01.txt_2015-08-11 15:52:17.508493.pkl'
+    filename = 'stats_1_2_2_2800_1_tweet_CO_01.txt_2015-08-11 16:08:03.856888.pkl'
+    run_stats = load_stats(filename, stats_dir_path)
+    words = set.union(*[set(x[10]) for x in run_stats.encoding_flow])
+    uncut_essences = [x[12] for x in run_stats.encoding_flow]
+    found_dict = {}
+    for uncut in uncut_essences:
+        for keyword in uncut:
+            if keyword in words:
+                continue
+            if keyword not in found_dict:
+                found_dict[keyword] = 0
+            found_dict[keyword] += 1
+
+    found_words = []
+    for k,v in found_dict.iteritems():
+        found_words.append((k, v))
+
+    found_words = sorted(found_words, key=lambda x: x[1])
+    print found_words
 
     # [[x[:9] for x in run_stats.encoding_flow if x[2]] for run_stats in runs]
-    run_deltas = []
     for run in runs:
 
         times = [datetime.strptime(x[-1], '%Y-%m-%d %H:%M:%S.%f') for x in run.encoding_flow]
@@ -280,7 +304,8 @@ if __name__ == '__main__':
     # can_we_find_links_in_google()
 
     tweet_file = 'tweet_CO_01.txt'
-    config = dictionaries.Config(1, 2, 2, 243, shuffle_keywords_seed=10)
+    # config = dictionaries.Config(1, 2, 2, 243, shuffle_keywords_seed=1)
+    config = dictionaries.Config(1, 2, 2, 2800, shuffle_keywords_seed=1)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'

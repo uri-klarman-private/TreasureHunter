@@ -38,7 +38,7 @@ class WordsStats:
 
         encoding_flow_item = [steps, link_i, link_found, step_kind, len(words_set), len(words_in_essence),
                               len(words_in_uncut_essence), len(uncut_essence), forward_steps, sidesteps, words,
-                              words_in_essence, words_in_uncut_essence, link, str(datetime.now())]
+                              essence, uncut_essence, link, str(datetime.now())]
         print 'encoding_flow_item: %s' % encoding_flow_item
 
         self.encoding_flow.append(encoding_flow_item)
