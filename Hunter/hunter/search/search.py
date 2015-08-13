@@ -14,7 +14,7 @@ from selenium import webdriver
 from hunter.dictionary.dictionaries import resources_path
 
 
-time_between_searches = 20
+time_between_searches = 30
 
 # Url to use for searches
 # Q_URL = "http://www.google.com/search?hl=en&lr=lang_en&q=%s&btnG=Google+Search"
@@ -125,6 +125,7 @@ class Search:
                     break
                 else:
                     print 'No links were found in this try. going to retry...'
+                    self.wait_till_safe()
             except Exception as inst:
                 print traceback.format_exc()
                 print 'Search failed... going to retry...'

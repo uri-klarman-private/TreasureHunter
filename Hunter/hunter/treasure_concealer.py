@@ -62,7 +62,7 @@ def find_link(words, search_engine, distillery, dicts, stats, threshold=10000):
                     distillery.restart_browser()
 
             # link_found = set(words).issubset(set(essence)) and 4 <= len(essence) <= 18
-            link_found = set(words).issubset(set(essence)) and 9 <= len(essence)
+            link_found = set(words).issubset(set(essence)) #and 9 <= len(essence)
             stats.update(link_i, link, link_found, words, threshold, essence, uncut_essence)
 
             if link_found or link_i >= threshold:
@@ -194,6 +194,20 @@ def conceal(tweet_file, config, endword_index=False):
 #         print key, value
 
 
+def chances(x):
+    if x[4] != x[6]:
+        return 0.
+    else:
+        dlf = 5
+        subgroup = 9
+        uncut = x[7]
+
+        chance_enum = math.factorial(uncut-dlf) * math.factorial(subgroup)
+        chance_denum = math.factorial(uncut) * math.factorial(subgroup-dlf)
+        chance = float(chance_enum) / chance_denum
+
+        return chance
+
 def print_stats_and_stuff():
 
     # all_files = os.listdir(final_stats_dir_path)
@@ -209,15 +223,21 @@ def print_stats_and_stuff():
     # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 14:57:23.195323.pkl'
     # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 15:30:40.787954.pkl'
     # filename = 'stats_1_2_2_3000_1_tweet_CO_01.txt_2015-08-11 15:52:17.508493.pkl'
-    filename = 'stats_1_2_2_2800_1_tweet_CO_01.txt_2015-08-11 16:08:03.856888.pkl'
+    # filename = 'stats_1_2_2_2800_1_tweet_CO_01.txt_2015-08-11 16:08:03.856888.pkl'
+    # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-11 23:36:51.564624.pkl'
+    # filename = 'stats_1_2_2_243_2_tweet_CO_01.txt_2015-08-12 17:27:03.263540.pkl'
+    filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-12 18:04:57.329819.pkl'
+
+
+
     run_stats = load_stats(filename, stats_dir_path)
     words = set.union(*[set(x[10]) for x in run_stats.encoding_flow])
     uncut_essences = [x[12] for x in run_stats.encoding_flow]
     found_dict = {}
     for uncut in uncut_essences:
         for keyword in uncut:
-            if keyword in words:
-                continue
+            # if keyword in words:
+            #     continue
             if keyword not in found_dict:
                 found_dict[keyword] = 0
             found_dict[keyword] += 1
@@ -227,7 +247,13 @@ def print_stats_and_stuff():
         found_words.append((k, v))
 
     found_words = sorted(found_words, key=lambda x: x[1])
-    print found_words
+    a = [(x, x[0] in words) for x in found_words]
+    print a
+
+    all_5_keywords_steps = [x for x in run_stats.encoding_flow if x[4] == 5]
+    chance = [chances(x) for x in all_5_keywords_steps]
+
+    expected_steps = 1 / (sum(chance) / len(chance))
 
     # [[x[:9] for x in run_stats.encoding_flow if x[2]] for run_stats in runs]
     for run in runs:
@@ -299,13 +325,13 @@ def print_stats_and_stuff():
 
 
 if __name__ == '__main__':
-    # print_stats_and_stuff()
+    print_stats_and_stuff()
 
     # can_we_find_links_in_google()
 
     tweet_file = 'tweet_CO_01.txt'
-    # config = dictionaries.Config(1, 2, 2, 243, shuffle_keywords_seed=1)
-    config = dictionaries.Config(1, 2, 2, 2800, shuffle_keywords_seed=1)
+    config = dictionaries.Config(1, 2, 2, 243)
+    # config = dictionaries.Config(1, 2, 2, 2800, shuffle_keywords_seed=1)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'
