@@ -9,12 +9,13 @@ import urllib2
 import urllib
 import urlparse
 from datetime import datetime,timedelta
+from random import uniform
 import requests
 from selenium import webdriver
 from hunter.dictionary.dictionaries import resources_path
 
 
-time_between_searches = 30
+time_between_searches = 45
 
 # Url to use for searches
 # Q_URL = "http://www.google.com/search?hl=en&lr=lang_en&q=%s&btnG=Google+Search"
@@ -90,7 +91,7 @@ class Search:
     def wait_till_safe(self):
         now = datetime.now()
         delta = now - self.prev_search_time
-        time_to_sleep = time_between_searches - delta.total_seconds()
+        time_to_sleep = time_between_searches + uniform(0.1, 30) - delta.total_seconds()
         if time_to_sleep > 0:
             time.sleep(time_to_sleep)
         self.prev_search_time = now
