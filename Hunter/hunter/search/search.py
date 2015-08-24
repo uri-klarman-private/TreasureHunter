@@ -155,6 +155,8 @@ class Search:
         next_url = ''
         if soup.find(id='pnnext', href=True) is not None:
             next_url = CONTINUED_SEARCH_URL + soup.find(id='pnnext')['href']
+        else:
+            print "couldn't find the next url!"
         anchors = soup.findAll('a', href=True)
 
 
