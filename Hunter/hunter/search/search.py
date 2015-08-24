@@ -108,10 +108,12 @@ class Search:
         # Build the request URL
         query_words_str = urllib.quote_plus(search_phrase)
         self.wait_till_safe()
-        if do_filter:
-            search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2_NO_FILTER
-        else:
-            search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2
+        # if do_filter:
+        #     search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2_NO_FILTER
+        # else:
+        #     search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2
+
+        search_url = QUERY_URL_PART_1 + query_words_str + QUERY_URL_PART_2
 
         return self.__search_by_url(search_url)
 
