@@ -6,6 +6,7 @@ import os
 import signal
 import random
 import math
+import decimal
 
 from hunter.dictionary import dictionaries
 from hunter.dictionary.dictionaries import resources_path
@@ -202,9 +203,10 @@ def chances(x):
         subgroup = 9
         uncut = x[7]
 
-        chance_enum = math.factorial(uncut-dlf) * math.factorial(subgroup)
-        chance_denum = math.factorial(uncut) * math.factorial(subgroup-dlf)
-        chance = float(chance_enum) / chance_denum
+        chance_enum = decimal.Decimal(math.factorial(uncut-dlf) * math.factorial(subgroup))
+        chance_denum = decimal.Decimal(math.factorial(uncut) * math.factorial(subgroup-dlf))
+
+        chance = chance_enum / chance_denum
 
         return chance
 
@@ -226,7 +228,8 @@ def print_stats_and_stuff():
     # filename = 'stats_1_2_2_2800_1_tweet_CO_01.txt_2015-08-11 16:08:03.856888.pkl'
     # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-11 23:36:51.564624.pkl'
     # filename = 'stats_1_2_2_243_2_tweet_CO_01.txt_2015-08-12 17:27:03.263540.pkl'
-    filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-12 18:04:57.329819.pkl'
+    # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-12 18:04:57.329819.pkl'
+    filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-13 01_09_10.304473.pkl'
 
 
 
@@ -251,9 +254,61 @@ def print_stats_and_stuff():
     print a
 
     all_5_keywords_steps = [x for x in run_stats.encoding_flow if x[4] == 5]
-    chance = [chances(x) for x in all_5_keywords_steps]
+    decimal_chance = [chances(x) for x in all_5_keywords_steps]
+    chance = [float(x) for x in decimal_chance]
+    #### THIS IS WRONG: need to break it according to each different Clue,
+    #### or bad clues takes the focus
 
-    expected_steps = 1 / (sum(chance) / len(chance))
+    steps_per_keyword = []
+
+    chance_multiplyed = []
+
+    for j in range(int(math.ceil(1000/sum(chance)))):
+        chance_multiplyed += chance
+
+    for i in range(100):
+        random.shuffle(chance_multiplyed)
+        chance_sum = 0.
+        i = 0
+        while chance_sum < 1.:
+            chance_sum += chance_multiplyed[i]
+            i += 1
+        steps_per_keyword.append(i)
+
+
+
+    sorted_steps = sorted(steps_per_keyword)
+    max_steps = int(math.ceil(max(sorted_steps)))
+    cdf = []
+    for i in range(max_steps + 2):
+        cdf.append(len([x for x in steps_per_keyword if x <= i]) / float(len(steps_per_keyword)))
+    # for i in range(24):
+    # cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
+
+    plt.axis([0, 600, 0., 1.1])
+    plt.plot(cdf, '-r')
+    plt.xlabel('Steps')
+    plt.ylabel('CDF')
+    plt.grid(True)
+    plt.show()
+    print 'done'
+
+
+    # n, bins, patches = plt.hist(expected_steps, 50, normed=0, facecolor='g', alpha=0.75)
+    # stub = range(10)
+    # stub += (range(3,7))
+    # stub += (range(4,6))
+    # n, bins, patches = plt.hist(stub, 10, facecolor='g', alpha=0.75)
+    # n, bins, patches = plt.hist(expected_steps, 20, facecolor='g', alpha=0.75)
+
+
+    # plt.xlabel('Smarts')
+    # plt.ylabel('Probability')
+    # plt.title('Histogram of IQ')
+    # plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
+    # plt.axis([0, 1000, 0, 500])
+    # plt.grid(True)
+    # plt.show()
 
     # [[x[:9] for x in run_stats.encoding_flow if x[2]] for run_stats in runs]
     for run in runs:
@@ -325,7 +380,7 @@ def print_stats_and_stuff():
 
 
 if __name__ == '__main__':
-    print_stats_and_stuff()
+    # print_stats_and_stuff()
 
     # can_we_find_links_in_google()
 
