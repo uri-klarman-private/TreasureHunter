@@ -206,20 +206,23 @@ def chances(x):
         chance_enum = decimal.Decimal(math.factorial(uncut-dlf) * math.factorial(subgroup))
         chance_denum = decimal.Decimal(math.factorial(uncut) * math.factorial(subgroup-dlf))
 
+        # if chance_enum > chance_denum:
+            # print 'hmmm'
+
         chance = chance_enum / chance_denum
 
         return chance
 
 def print_stats_and_stuff():
 
-    # all_files = os.listdir(final_stats_dir_path)
+    all_files = os.listdir(final_stats_dir_path)[1:]
     runs = []
-    run_deltas = []
-    # for filename in all_files:
-    #     run_stats = load_stats(filename, final_stats_dir_path)
-    #     print filename
-    #     print run_stats.encoding_flow[-1]
-    #     runs.append(run_stats)
+    # run_deltas = []
+    for filename in all_files:
+        run_stats = load_stats(filename, final_stats_dir_path)
+        print filename
+        print run_stats.encoding_flow[-1]
+        runs.append(run_stats)
 
     # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 12:42:10.388835.pkl'
     # filename = 'stats_1_2_2_243_1_tweet_CO_01.txt_2015-08-11 14:57:23.195323.pkl'
@@ -229,65 +232,99 @@ def print_stats_and_stuff():
     # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-11 23:36:51.564624.pkl'
     # filename = 'stats_1_2_2_243_2_tweet_CO_01.txt_2015-08-12 17:27:03.263540.pkl'
     # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-12 18:04:57.329819.pkl'
-    filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-13 01_09_10.304473.pkl'
+    # filename = 'stats_1_2_2_243_0_tweet_CO_01.txt_2015-08-13 01_09_10.304473.pkl'
+
+
+    # USE THIS TO THROW OUT BAD KEYWORDS
+    # run_stats = load_stats(filename, stats_dir_path)
+    # words = set.union(*[set(x[10]) for x in run_stats.encoding_flow])
+    # uncut_essences = [x[12] for x in run_stats.encoding_flow]
+    # found_dict = {}
+    # for uncut in uncut_essences:
+    #     for keyword in uncut:
+    #         # if keyword in words:
+    #         #     continue
+    #         if keyword not in found_dict:
+    #             found_dict[keyword] = 0
+    #         found_dict[keyword] += 1
+    #
+    # found_words = []
+    # for k,v in found_dict.iteritems():
+    #     found_words.append((k, v))
+    #
+    # found_words = sorted(found_words, key=lambda x: x[1])
+    # a = [(x, x[0] in words) for x in found_words]
+    # print a
+
+    clues_seq = []
+    for run_stats in runs:
+        all_5_keywords_steps = [x for x in run_stats.encoding_flow if x[4] == 5]
+        new_clue = [all_5_keywords_steps[0]]
+        for i in range(1, len(all_5_keywords_steps)):
+            if all_5_keywords_steps[i][0] == all_5_keywords_steps[i-1][0]:
+                new_clue.append(all_5_keywords_steps[i])
+            else:
+                clues_seq.append(new_clue)
+                new_clue = [all_5_keywords_steps[i]]
+
+        clues_seq.append(new_clue)
+
+    clues_seq_chances = []
+    for clue_seq in clues_seq:
+        clue_seq_chance = [float(chances(x)) for x in clue_seq]
+        clues_seq_chances.append(clue_seq_chance)
+
+    needed_iterations_per_clue = []
+    num_clues = 600
+    tries_per_clue = 1000
+    random.seed(1609)
+    for clue_i in range(num_clues):
+        clue_seq_chance = random.choice(clues_seq_chances)
+        needed_i = tries_per_clue
+        for i in range(1, tries_per_clue):
+            thresh = random.choice(clue_seq_chance)
+            val = random.random()
+            if val <= thresh:
+                needed_i = i
+                break
+        needed_iterations_per_clue.append(needed_i)
 
 
 
-    run_stats = load_stats(filename, stats_dir_path)
-    words = set.union(*[set(x[10]) for x in run_stats.encoding_flow])
-    uncut_essences = [x[12] for x in run_stats.encoding_flow]
-    found_dict = {}
-    for uncut in uncut_essences:
-        for keyword in uncut:
-            # if keyword in words:
-            #     continue
-            if keyword not in found_dict:
-                found_dict[keyword] = 0
-            found_dict[keyword] += 1
-
-    found_words = []
-    for k,v in found_dict.iteritems():
-        found_words.append((k, v))
-
-    found_words = sorted(found_words, key=lambda x: x[1])
-    a = [(x, x[0] in words) for x in found_words]
-    print a
-
-    all_5_keywords_steps = [x for x in run_stats.encoding_flow if x[4] == 5]
-    decimal_chance = [chances(x) for x in all_5_keywords_steps]
-    chance = [float(x) for x in decimal_chance]
-    #### THIS IS WRONG: need to break it according to each different Clue,
-    #### or bad clues takes the focus
-
-    steps_per_keyword = []
-
-    chance_multiplyed = []
-
-    for j in range(int(math.ceil(1000/sum(chance)))):
-        chance_multiplyed += chance
-
-    for i in range(100):
-        random.shuffle(chance_multiplyed)
-        chance_sum = 0.
-        i = 0
-        while chance_sum < 1.:
-            chance_sum += chance_multiplyed[i]
-            i += 1
-        steps_per_keyword.append(i)
+    # decimal_chance = [chances(x) for x in all_5_keywords_steps]
+    # chance = [float(x) for x in decimal_chance]
+    # #### THIS IS WRONG: need to break it according to each different Clue,
+    # #### or bad clues takes the focus
+    #
+    # steps_per_keyword = []
+    #
+    # chance_multiplyed = []
+    #
+    # for j in range(int(math.ceil(1000/sum(chance)))):
+    #     chance_multiplyed += chance
+    #
+    # for i in range(100):
+    #     random.shuffle(chance_multiplyed)
+    #     chance_sum = 0.
+    #     i = 0
+    #     while chance_sum < 1.:
+    #         chance_sum += chance_multiplyed[i]
+    #         i += 1
+    #     steps_per_keyword.append(i)
 
 
 
-    sorted_steps = sorted(steps_per_keyword)
+    sorted_steps = sorted(needed_iterations_per_clue)
     max_steps = int(math.ceil(max(sorted_steps)))
     cdf = []
     for i in range(max_steps + 2):
-        cdf.append(len([x for x in steps_per_keyword if x <= i]) / float(len(steps_per_keyword)))
+        cdf.append(len([x for x in needed_iterations_per_clue if x <= i]) / float(len(needed_iterations_per_clue)))
     # for i in range(24):
     # cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
 
     plt.axis([0, 600, 0., 1.1])
     plt.plot(cdf, '-r')
-    plt.xlabel('Steps')
+    plt.xlabel('iterations')
     plt.ylabel('CDF')
     plt.grid(True)
     plt.show()
@@ -381,12 +418,12 @@ def print_stats_and_stuff():
 
 if __name__ == '__main__':
     # print_stats_and_stuff()
-
+    #
     # can_we_find_links_in_google()
-
-    tweet_file = 'tweet_CO_01.txt'
+    #
+    tweet_file = 'tweet_CO_08.txt'
     config = dictionaries.Config(1, 2, 2, 243)
-    # config = dictionaries.Config(1, 2, 2, 2800, shuffle_keywords_seed=1)
+    ## config = dictionaries.Config(1, 2, 2, 2800, shuffle_keywords_seed=1)
     dictionaries.create_and_save_dicts(config)
     conceal(tweet_file, config)
     print 'done'
