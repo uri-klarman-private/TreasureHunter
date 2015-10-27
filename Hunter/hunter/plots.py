@@ -11,10 +11,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 figures_dir = '/Users/uriklarman/Papers/shadownet-paper/sigcomm16/figures/'
-figsize=(6.5, 3)
-styles = {0:('-b',3), 1:('-g',3), 2:('-r',3), 3:('--b',3), 4:('--g',3), 5:('--r',3), 6:('-b',1), 7:('-g',1)}
-max_ue = 100
+# figsize=(6.5, 3)
+figsize=(4.5, 3)
+styles = {0:('-b',4), 1:('-k',4), 2:('-r',4), 3:('--b',4), 4:('--k',4), 5:('--r',4), 6:('-b',1), 7:('-k',1)}
+max_ue = 80
 
+def set_axis_legend_save(parameter_str):
+    plt.ylabel('Expected Number of of Webpages')
+    plt.xlabel('|UE|')
+    plt.legend(frameon=False, loc=4, prop={'size':15})
+    plt.axis([0, max_ue, 0, 100])
+    plt.savefig(figures_dir + ('param_%s.eps' % parameter_str), bbox_inches='tight')
+
+    # plt.xlabel('|UE|', fontsize=14)
+    # plt.legend(frameon=False, prop={'size':18})
 
 def role_of_e():
     plt.figure(figsize=figsize)
@@ -25,11 +35,8 @@ def role_of_e():
         ue, expected = compute_data_points(e, int(c))
         plt.plot(ue, expected, styles[i][0], linewidth=styles[i][1], label='(|E|=%d)' % e)
 
-    plt.ylabel('Expected Number of of Webpages')
-    plt.xlabel('|UE|')
-    plt.legend(frameon=False)
-    plt.axis([0, max_ue, 0, 100])
-    plt.savefig(figures_dir + 'param_E.eps', bbox_inches='tight')
+    set_axis_legend_save('E')
+
     plt.show()
 
 
@@ -42,17 +49,13 @@ def role_of_c():
         ue, expected = compute_data_points(e, int(c))
         plt.plot(ue, expected, styles[i][0], linewidth=styles[i][1], label='(|C|=%d)' % c)
 
-    plt.ylabel('Expected Number of Webpages')
-    plt.xlabel('|UE|')
-    plt.legend(frameon=False)
-    plt.axis([0, max_ue, 0, 100])
-    plt.savefig(figures_dir + 'param_C.eps', bbox_inches='tight')
+    set_axis_legend_save('C')
     plt.show()
 
 
 def role_of_f():
     plt.figure(figsize=figsize)
-    max_ue = 100
+
     f_values = [2.,3.,4.,5.]
     d = 1
     l = 2
@@ -63,11 +66,7 @@ def role_of_f():
         ue, expected = compute_data_points(e, int(c))
         plt.plot(ue, expected, styles[i][0], linewidth=styles[i][1], label='(F=%d)' % f)
 
-    plt.ylabel('Expected Number of Webpages')
-    plt.xlabel('|UE|')
-    plt.legend(frameon=False)
-    plt.axis([0, max_ue, 0, 100])
-    plt.savefig(figures_dir + 'param_F.eps', bbox_inches='tight')
+    set_axis_legend_save('F')
     plt.show()
 
 
@@ -83,36 +82,9 @@ def role_of_l():
         ue, expected = compute_data_points(e, int(c))
         plt.plot(ue, expected, styles[i][0], linewidth=styles[i][1], label='(L=%d)' % l)
 
-    plt.ylabel('Expected Number of Webpages')
-    plt.xlabel('|UE|')
-    plt.legend(frameon=False)
-    plt.axis([0, max_ue, 0, 100])
-    plt.savefig(figures_dir + 'param_L.eps', bbox_inches='tight')
+    set_axis_legend_save('L')
     plt.show()
 
-
-def role_of_d():
-    plt.figure(figsize=figsize)
-    d_values = [1., 2., 3.]
-    l = 1
-    f = 2
-    k = 250
-    for i, d in enumerate(d_values):
-        c = d + l + f
-        e = int(math.floor(k**(f / c)))
-        ue, expected = compute_data_points(e, int(c))
-        plt.plot(ue, expected, styles[i][0], linewidth=styles[i][1], label='(d=%d)' % d)
-
-    plt.ylabel('Expected Number of Webpages')
-    plt.xlabel('|UE|')
-    plt.legend(frameon=False)
-    plt.axis([0, max_ue, 0, 100])
-    plt.savefig(figures_dir + 'param_D.eps', bbox_inches='tight')
-    plt.show()
-
-
-def role_of_k():
-    pass
 
 
 def compute_data_points(e, c):
@@ -182,8 +154,9 @@ def __performance_figures(clue_size):
     # for i in range(24):
     # cdf.append(len([x for x in hours if x <= i]) / float(len(hours)))
 
+    plt.figure(figsize=figsize)
     plt.axis([0, 600, 0., 1.])
-    plt.plot(cdf, '-r')
+    plt.plot(cdf, '-k', linewidth=2)
     plt.xlabel('Number of Webpages considered prior to finding feasible Webpage')
     plt.ylabel('CDF')
     plt.grid(True)
@@ -222,9 +195,8 @@ def compression_performance():
     print 'done'
 
 if __name__ == '__main__':
-    role_of_d()
     role_of_e()
-    role_of_f()
-    role_of_k()
     role_of_l()
+    role_of_f()
+    # performance_figures()
     role_of_c()
